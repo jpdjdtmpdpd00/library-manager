@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<!-- GitHub Pages v6.0 rebuilt edition -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>蔵書・AV資料管理 — GitHub Pages版 v6.0</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--ok:#166534;--warn:#92400e;--bad:#991b1b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1000px;margin:auto;padding:14px 16px}h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:860px){.grid{grid-template-columns:400px 1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.notice{background:#f3f4f6;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.6;margin-bottom:12px}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:10px 11px;border:1px solid #d1d5db;border-radius:10px;background:#fff}
+textarea{min-height:70px;resize:vertical}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+button{border:0;border-radius:10px;padding:11px 12px;background:var(--accent);color:#fff;font-weight:650;cursor:pointer}
+button.secondary{background:#eef0f3;color:#111827}button.ghost{background:#fff;color:#111827;border:1px solid var(--line)}button.danger{background:#fee2e2;color:#991b1b}
+.status{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}.ok{color:var(--ok)}.warn{color:var(--warn)}.err{color:var(--bad)}
+#preview{display:none;width:100%;max-height:260px;object-fit:contain;border-radius:12px;background:#f3f4f6;margin-top:10px}
+.small{font-size:11px}.muted{color:var(--muted)}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar input{flex:1;min-width:220px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.stat{background:#f3f4f6;border-radius:9px;padding:7px 9px;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:11px;color:var(--muted);background:#fff;position:sticky;top:64px}.cover{width:44px;height:62px;object-fit:cover;border-radius:6px;background:#eee}
+.badge{display:inline-block;background:#eef2ff;padding:3px 6px;border-radius:999px;margin:2px 3px 2px 0;font-size:11px}.title{font-weight:700}.empty{text-align:center;padding:30px;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;align-items:flex-end;justify-content:center}.modal.show{display:flex}
+.sheet{background:#fff;width:min(700px,100%);max-height:90vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
+.tip{border-left:3px solid #d1d5db;padding-left:9px;margin-top:8px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<style>
+.sectionTitle{font-size:13px;font-weight:800;margin:2px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sectionTitle .hint{font-size:11px;font-weight:400;color:var(--muted)}
+.formSection{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.kpiGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.kpi{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px}
+.kpi .num{font-size:20px;font-weight:800}.kpi .label{font-size:11px;color:var(--muted)}
+.filterGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+@media(min-width:720px){.filterGrid{grid-template-columns:2fr 1fr 1fr 1fr}}
+.itemCard{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:#fff}
+.itemTop{display:flex;gap:10px;align-items:flex-start}.itemMain{flex:1;min-width:0}
+.itemTitle{font-weight:800;font-size:15px;line-height:1.35}.itemMeta{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
+.itemBadges{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.badge.status-doing{background:#fef3c7}.badge.status-done{background:#dcfce7}.badge.status-pending{background:#f3f4f6}
+.itemActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.itemActions button{padding:8px 10px;font-size:12px}
+.compactSummary{font-size:12px;color:var(--muted);margin:6px 0 0}
+.backupBox{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px}
+.stickyActions{position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding-top:10px;margin-top:12px;border-top:1px solid var(--line)}
+#listCards{display:block}#tableWrap{display:none}
+@media(min-width:900px){#listCards{display:none}#tableWrap{display:block}}
+</style>
+
+
+<style>
+.itemCard{cursor:pointer;transition:transform .05s ease,box-shadow .15s ease}
+.itemCard:active{transform:scale(.995)}
+.itemCard:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.itemActions{position:relative;z-index:2}
+.collapseBar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0 10px}
+.collapseBar .summary{font-size:12px;color:var(--muted)}
+#listArea.collapsed #listCards,
+#listArea.collapsed #tableWrap{display:none!important}
+#collapseBtn{white-space:nowrap}
+</style>
+
+
+<style>
+.shareNote{font-size:12px;color:var(--muted);line-height:1.55}
+</style>
+
+</head>
+<body>
+<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">GitHub Pages版 v6.0・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
+
+<div id="firstUseHelp" class="wrap" style="padding-top:10px">
+  <div class="card">
+    <div class="sectionTitle">はじめに <span class="hint">このファイルだけで利用できます</span></div>
+    <div class="notice" style="margin:0">
+      このツールは、利用者ごとに各端末のブラウザ内へデータを保存します。
+      他の人とこのHTMLファイルを共有しても、蔵書データ自体は自動では共有されません。
+      機種変更やデータ移行には「完全バックアップ」を使ってください。
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="hideHelpBtn" class="secondary">この説明を閉じる</button>
+    </div>
+  </div>
+</div>
+
+
+<main class="wrap grid">
+<section class="card">
+  <div class="notice">
+    <b>GitHub Pages版 v6.0</b><br>
+    Chromeで開いて使うことを想定しています。このHTMLファイル単体でバーコード画像を解析します。
+    「カメラで撮影」または「写真から選択」でISBNバーコードを読み取れます。
+  </div>
+
+  <div class="row">
+    <button id="cameraBtn">📷 カメラで撮影</button>
+    <button id="galleryBtn" class="secondary">🖼 写真から選択</button>
+  </div>
+  <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
+  <input id="galleryInput" type="file" accept="image/*" hidden>
+  <img id="preview" alt="バーコード画像">
+  <div id="scanStatus" class="status">Chromeで開き、「カメラで撮影」を押してください。バーコードを横向きに大きく写すと読み取りやすくなります。</div>
+  <div class="tip small muted">
+    コツ：バーコード全体を正面から撮影し、影・反射・ピンぼけを避けてください。ISBNのバーコードは通常「978」または「979」で始まります。
+  </div>
+
+
+  <div class="tip small muted" style="margin-top:10px">
+    Androidでボタンが反応しない場合：ファイルマネージャーのプレビューではなく、HTMLファイルを「アプリで開く」→「Chrome」で開いてください。
+  </div>
+
+
+  <div class="sectionTitle">基本情報 <span class="hint">資料種別で入力欄が切り替わります</span></div>
+  <label>資料種別</label>
+  <select id="mediaType">
+    <option value="book">書籍</option>
+    <option value="dvd">DVD</option>
+    <option value="bluray">Blu-ray</option>
+    <option value="vhs">VHS</option>
+    <option value="video">映像ファイル</option>
+    <option value="cd">CD</option>
+    <option value="vinyl">レコード</option>
+    <option value="cassette">カセットテープ</option>
+    <option value="audio">音声ファイル</option>
+    <option value="other">その他</option>
+  </select>
+
+  <div id="bookFields">
+    <label>バーコード番号（ISBN-13）</label>
+    <div class="row">
+      <input id="isbn" inputmode="numeric" maxlength="13" placeholder="例：9784000000000" autocomplete="off">
+      <button id="lookupBtn">書誌取得</button>
+    </div>
+    <div class="small muted" style="margin-top:6px">画像で読めない場合は、バーコード下の13桁を直接入力できます。</div>
+    <div class="small muted" style="margin-top:4px">書誌情報は openBD → Google Books の順に自動検索します。</div>
+
+    <label>書名</label><input id="title">
+    <label>著者</label><input id="authors">
+    <div class="row">
+      <div><label>出版社</label><input id="publisher"></div>
+      <div><label>発行年</label><input id="year" inputmode="numeric"></div>
+    </div>
+    <label>自動ジャンル</label><select id="genre"></select>
+  </div>
+
+  <div id="videoFields" style="display:none">
+    <label>バーコード番号 / 管理番号</label>
+    <input id="mediaCode" inputmode="numeric" placeholder="JANコード・UPC・任意の管理番号">
+    <label>作品名</label><input id="mediaTitle" placeholder="映画・映像作品タイトル">
+    <label>監督 / 制作者</label><input id="director" placeholder="例：黒澤明">
+    <div class="row">
+      <div><label>発売元 / 配給</label><input id="studio"></div>
+      <div><label>発売年</label><input id="mediaYear" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label>収録時間</label><input id="runtime" placeholder="例：120分"></div>
+      <div><label>枚数 / 本数</label><input id="discCount" placeholder="例：2"></div>
+    </div>
+    <label>映像ジャンル</label>
+    <select id="videoGenre">
+      <option>未分類</option><option>映画</option><option>ドキュメンタリー</option>
+      <option>歴史</option><option>文化財・美術</option><option>舞台・演劇</option>
+      <option>音楽</option><option>アニメーション</option><option>テレビ番組</option>
+      <option>教育・研究</option><option>その他</option>
+    </select>
+  </div>
+
+  <div id="audioFields" style="display:none">
+    <label>バーコード番号 / 管理番号</label>
+    <input id="audioCode" inputmode="numeric" placeholder="JANコード・UPC・カタログ番号等">
+    <label>タイトル / アルバム名</label><input id="audioTitle">
+    <label>アーティスト / 演奏者</label><input id="artist">
+    <div class="row">
+      <div><label>レーベル / 発売元</label><input id="labelName"></div>
+      <div><label>発売年</label><input id="audioYear" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label>カタログ番号</label><input id="catalogNo"></div>
+      <div><label>枚数 / 本数</label><input id="audioDiscCount" placeholder="例：2"></div>
+    </div>
+    <label>音楽ジャンル</label>
+    <select id="audioGenre">
+      <option>未分類</option><option>クラシック</option><option>ジャズ</option>
+      <option>ロック</option><option>ポップス</option><option>邦楽</option>
+      <option>映画音楽</option><option>伝統音楽</option><option>朗読・音声</option>
+      <option>その他</option>
+    </select>
+  </div>
+
+  <div id="otherFields" style="display:none">
+    <label>管理番号</label><input id="otherCode">
+    <label>資料名</label><input id="otherTitle">
+    <label>作成者 / 制作者</label><input id="otherCreator">
+    <div class="row">
+      <div><label>発行元 / 制作元</label><input id="otherPublisher"></div>
+      <div><label>年</label><input id="otherYear" inputmode="numeric"></div>
+    </div>
+    <label>分類</label><input id="otherGenre" placeholder="自由入力">
+  </div>
+
+  <div class="formSection"><div class="sectionTitle">管理情報</div>
+  <label>進捗状態</label>
+  <select id="progressStatus"></select>
+  <label>タグ（カンマ区切り）</label><input id="tags">
+  <div class="row"><div><label>本棚</label><input id="shelf" placeholder="例：書斎A"></div><div><label>段</label><input id="level" placeholder="例：3"></div></div>
+  <label>備考</label><textarea id="notes"></textarea>
+
+  </div>
+  <div id="editBanner" class="notice" style="display:none;margin-top:12px">
+    <b>編集中</b><br>このフォームは既存資料の編集モードです。「変更を保存」で上書きします。
+  </div>
+  <div class="stickyActions"><div class="row">
+    <button id="addBtn">＋ この内容で登録</button>
+    <button id="cancelEditBtn" class="secondary" style="display:none">編集取消</button>
+    <button id="clearBtn" class="secondary">クリア</button>
+  </div></div>
+  <div id="formStatus" class="status"></div>
+</section>
+
+<section class="card">
+  <div class="sectionTitle">所蔵一覧 <span class="hint">検索・絞り込み・編集・削除</span></div>
+  <div class="filterGrid">
+    <input id="search" placeholder="タイトル・著者/制作者・ISBN・タグ・場所を検索">
+    <select id="typeFilter">
+      <option value="">すべての種別</option>
+      <option value="book">書籍</option><option value="dvd">DVD</option><option value="bluray">Blu-ray</option>
+      <option value="vhs">VHS</option><option value="video">映像ファイル</option><option value="cd">CD</option>
+      <option value="vinyl">レコード</option><option value="cassette">カセット</option><option value="audio">音声ファイル</option>
+      <option value="other">その他</option>
+    </select>
+    <select id="statusFilter"><option value="">すべての進捗</option></select>
+    <select id="locationFilter"><option value="">すべての保管場所</option></select>
+  </div>
+  <div class="kpiGrid">
+    <div class="kpi"><div class="num" id="count">0</div><div class="label">登録資料</div></div>
+    <div class="kpi"><div class="num" id="doneCount">0</div><div class="label">完了</div></div>
+    <div class="kpi"><div class="num" id="activeCount">0</div><div class="label">進行中</div></div>
+    <div class="kpi"><div class="num" id="unshelved">0</div><div class="label">保管場所未設定</div></div>
+  </div>
+  <div class="collapseBar">
+    <div class="summary" id="listSummary">0点表示</div>
+    <button id="collapseBtn" class="secondary">一覧を折りたたむ</button>
+  </div>
+  <div id="listArea">
+    <div id="listCards"></div>
+    <div id="tableWrap">
+    <table>
+      <thead><tr><th></th><th>タイトル・作成者</th><th>分類・進捗</th><th>場所</th><th>操作</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    </div>
+  </div>
+<div class="backupBox">
+    <div class="sectionTitle">保存・バックアップ <span class="hint">Excelは一覧管理用、JSONは復元用</span></div>
+    <div class="toolbar">
+      <button id="excelBtn" class="secondary">Excel保存</button>
+      <button id="exportBtn" class="secondary">CSV保存</button>
+      <button id="backupBtn" class="secondary">完全バックアップ</button>
+      <button id="restoreBtn" class="secondary">バックアップ復元</button>
+      <button id="importBtn" class="secondary">CSV読込み</button>
+      <input id="fileInput" type="file" accept=".csv,text/csv" hidden>
+      <input id="restoreInput" type="file" accept=".json,application/json" hidden>
+    </div>
+  </div>
+</section>
+</main>
+
+<div id="modal" class="modal"><div class="sheet"><div class="row"><strong id="mTitle">詳細</strong><button id="closeModal" class="secondary">閉じる</button></div><div id="mBody" style="margin-top:10px"></div></div></div>
+
+<script>
+/* ===================== 基本データ ===================== */
+const GENRES=["未分類","歴史","日本史","東洋史","西洋史","考古学","文化財","保存修復","紙文化財","美術史","漆工・工芸","博物館学","化学・材料","建築","宗教","民俗学","文学","小説","語学","哲学・思想","社会科学","自然科学","写真","コンピュータ","その他"];
+const KEYWORDS=[
+["紙文化財",["紙文化財","和紙","料紙","古文書","装潢","表具","掛軸","巻子","書跡","紙資料"]],
+["保存修復",["保存修復","修復","保存科学","conservation","restoration","劣化","文化財科学"]],
+["漆工・工芸",["漆","蒔絵","螺鈿","工芸","陶芸","染織","金工","木工","craft"]],
+["文化財",["文化財","文化遺産","heritage","史跡","名勝","重要文化財","国宝"]],
+["博物館学",["博物館","美術館","museum","キュレーション","学芸員","展示論"]],
+["考古学",["考古","発掘","遺跡","遺物","古墳","縄文","弥生"]],
+["日本史",["日本史","日本歴史","江戸","明治","大正","昭和","戦国","幕末","平安","鎌倉","室町"]],
+["東洋史",["東洋史","中国史","清朝","明朝","唐","宋","漢","朝鮮史","アジア史"]],
+["西洋史",["西洋史","ヨーロッパ史","欧州史","ローマ","ギリシア","中世ヨーロッパ"]],
+["歴史",["歴史","history","史料","古代","中世","近世","近代"]],
+["美術史",["美術史","日本美術","東洋美術","西洋美術","絵画","彫刻","仏像","美術"]],
+["化学・材料",["化学","chemical","chemistry","材料","顔料","染料","インク","高分子","分析化学"]],
+["建築",["建築","寺院建築","architecture","建造物"]],
+["宗教",["仏教","神道","宗教","寺院","宗教学"]],
+["民俗学",["民俗","民具","folklore","祭礼","祭り"]],
+["写真",["写真","photography","カメラ"]],
+["コンピュータ",["プログラミング","programming","computer","react","python","javascript"]],
+["文学",["文学","詩歌","古典文学","近代文学","評論"]],
+["小説",["小説","novel","fiction"]],
+["哲学・思想",["哲学","思想","倫理","philosophy"]],
+["社会科学",["社会学","政治","経済","法律","法学","教育学"]],
+["自然科学",["物理","生物","地学","数学","科学"]]
+];
+const $=id=>document.getElementById(id);
+GENRES.forEach(g=>$("genre").insertAdjacentHTML("beforeend",`<option>${g}</option>`));
+let books=[];
+try{
+  const saved=JSON.parse(localStorage.getItem("homeLibraryBooks")||"[]");
+  books=Array.isArray(saved)?saved:[];
+}catch(e){
+  books=[];
+}
+let editingId=null;
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+function normalizeISBN(s){return (s||"").replace(/[^0-9Xx]/g,"").toUpperCase();}
+function validISBN13(s){
+  if(!/^\d{13}$/.test(s))return false;
+  let sum=0;for(let i=0;i<12;i++)sum+=(+s[i])*(i%2?3:1);
+  return (10-(sum%10))%10===+s[12];
+}
+function setScan(msg,cls=""){$("scanStatus").className="status "+cls;$("scanStatus").textContent=msg}
+function setForm(msg,cls=""){$("formStatus").className="status "+cls;$("formStatus").textContent=msg}
+
+/* ===================== EAN-13 デコーダ（完全ローカル） ===================== */
+const L={
+"3211":"0","2221":"1","2122":"2","1411":"3","1132":"4",
+"1231":"5","1114":"6","1312":"7","1213":"8","3112":"9"
+};
+const G={
+"1123":"0","1222":"1","2212":"2","1141":"3","2311":"4",
+"1321":"5","4111":"6","2131":"7","3121":"8","2113":"9"
+};
+const R=L;
+const PARITY={
+"LLLLLL":"0","LLGLGG":"1","LLGGLG":"2","LLGGGL":"3","LGLLGG":"4",
+"LGGLLG":"5","LGGGLL":"6","LGLGLG":"7","LGLGGL":"8","LGGLGL":"9"
+};
+
+function otsuThreshold(gray){
+  const hist=new Array(256).fill(0);
+  for(const v of gray)hist[v]++;
+  const total=gray.length;let sum=0;
+  for(let i=0;i<256;i++)sum+=i*hist[i];
+  let sumB=0,wB=0,max=0,thr=128;
+  for(let i=0;i<256;i++){
+    wB+=hist[i];if(!wB)continue;
+    const wF=total-wB;if(!wF)break;
+    sumB+=i*hist[i];
+    const mB=sumB/wB,mF=(sum-sumB)/wF;
+    const between=wB*wF*(mB-mF)*(mB-mF);
+    if(between>max){max=between;thr=i}
+  }
+  return thr;
+}
+
+function runsFromBits(bits){
+  const runs=[];let last=bits[0],len=1;
+  for(let i=1;i<bits.length;i++){
+    if(bits[i]===last)len++;
+    else{runs.push({c:last,n:len});last=bits[i];len=1}
+  }
+  runs.push({c:last,n:len});return runs;
+}
+
+function quant4(arr){
+  const sum=arr.reduce((a,b)=>a+b,0), unit=sum/7;
+  let q=arr.map(v=>Math.max(1,Math.min(4,Math.round(v/unit))));
+  let diff=7-q.reduce((a,b)=>a+b,0);
+  while(diff!==0){
+    let best=-1,bestErr=Infinity;
+    for(let i=0;i<4;i++){
+      const nq=q[i]+Math.sign(diff);
+      if(nq<1||nq>4)continue;
+      const err=Math.abs(arr[i]/unit-nq);
+      if(err<bestErr){bestErr=err;best=i}
+    }
+    if(best<0)break;q[best]+=Math.sign(diff);diff-=Math.sign(diff)
+  }
+  return q.join("");
+}
+
+function nearOne(a,b,tol=.75){return Math.abs(a-b)<=Math.max(a,b)*tol}
+function guard3(r,i){
+  if(i+2>=r.length)return false;
+  return r[i].c===1&&r[i+1].c===0&&r[i+2].c===1&&nearOne(r[i].n,r[i+1].n)&&nearOne(r[i+1].n,r[i+2].n)
+}
+
+function decode59(rs){
+  if(rs.length<59)return null;
+  // normalize total width against expected 95 modules
+  const total=rs.slice(0,59).reduce((s,x)=>s+x.n,0);
+  const unit=total/95;
+  if(unit<0.6)return null;
+  const mods=rs.slice(0,59).map(x=>x.n/unit);
+
+  // guards: 3 + 24 + 5 + 24 + 3
+  const guardIdx=[0,1,2,27,28,29,30,31,56,57,58];
+  if(guardIdx.some(i=>Math.abs(mods[i]-1)>0.85))return null;
+
+  let idx=3,left="",par="";
+  for(let d=0;d<6;d++){
+    const key=quant4(rs.slice(idx,idx+4).map(x=>x.n));
+    if(L[key]!=null){left+=L[key];par+="L"}
+    else if(G[key]!=null){left+=G[key];par+="G"}
+    else return null;
+    idx+=4;
+  }
+  const first=PARITY[par];if(first==null)return null;
+  idx=32;let right="";
+  for(let d=0;d<6;d++){
+    const key=quant4(rs.slice(idx,idx+4).map(x=>x.n));
+    if(R[key]==null)return null;
+    right+=R[key];idx+=4;
+  }
+  const code=first+left+right;
+  return validISBN13(code)?code:null;
+}
+
+function decodeRuns(runs){
+  // Remove long white quiet zones only by searching black start runs.
+  for(let i=0;i+58<runs.length;i++){
+    if(!guard3(runs,i))continue;
+    const cand=decode59(runs.slice(i,i+59));
+    if(cand && /^(978|979)/.test(cand))return cand;
+  }
+  return null;
+}
+
+function lineDecode(gray,threshold){
+  const bits=new Uint8Array(gray.length);
+  for(let i=0;i<gray.length;i++)bits[i]=gray[i]<threshold?1:0;
+  let code=decodeRuns(runsFromBits(bits));
+  if(code)return code;
+  // Try inverted in case of unusual rendering.
+  for(let i=0;i<bits.length;i++)bits[i]=bits[i]?0:1;
+  return decodeRuns(runsFromBits(bits));
+}
+
+function rotateCanvas(src,deg){
+  const c=document.createElement("canvas"),ctx=c.getContext("2d");
+  if(deg===90||deg===270){c.width=src.height;c.height=src.width}else{c.width=src.width;c.height=src.height}
+  ctx.translate(c.width/2,c.height/2);ctx.rotate(deg*Math.PI/180);ctx.drawImage(src,-src.width/2,-src.height/2);return c;
+}
+
+async function decodeBarcodeFromImage(img){
+  const maxW=1800,scale=Math.min(1,maxW/Math.max(img.naturalWidth,img.naturalHeight));
+  let base=document.createElement("canvas");
+  base.width=Math.max(1,Math.round(img.naturalWidth*scale));
+  base.height=Math.max(1,Math.round(img.naturalHeight*scale));
+  base.getContext("2d").drawImage(img,0,0,base.width,base.height);
+
+  // Try original and 90-degree rotations to tolerate portrait photos.
+  for(const deg of [0,90,270]){
+    const c=deg?rotateCanvas(base,deg):base,ctx=c.getContext("2d");
+    const w=c.width,h=c.height;
+    // Focus on multiple horizontal scanlines across most of the image.
+    const ys=[];
+    for(let p=.18;p<=.82;p+=.035)ys.push(Math.floor(h*p));
+    for(const y of ys){
+      const data=ctx.getImageData(0,Math.max(0,y-1),w,3).data;
+      const gray=new Uint8Array(w);
+      for(let x=0;x<w;x++){
+        let s=0;
+        for(let yy=0;yy<3;yy++){
+          const k=(yy*w+x)*4;
+          s+=0.299*data[k]+0.587*data[k+1]+0.114*data[k+2];
+        }
+        gray[x]=s/3;
+      }
+      const t=otsuThreshold(gray);
+      for(const dt of [0,-18,18,-35,35]){
+        const code=lineDecode(gray,Math.max(20,Math.min(235,t+dt)));
+        if(code)return code;
+      }
+    }
+  }
+  return null;
+}
+
+/* ===================== 画像入力 ===================== */
+async function decodeImageFile(file){
+  const url=URL.createObjectURL(file),img=new Image();
+  $("preview").src=url;$("preview").style.display="block";
+  setScan("画像を解析しています…");
+  img.onload=async()=>{
+    try{
+      const code=await decodeBarcodeFromImage(img);
+      if(code){
+        $("isbn").value=code;
+        setScan(`ISBN ${code} を読み取りました。`,"ok");
+        await lookupISBN();
+      }else{
+        setScan("バーコードを読み取れませんでした。バーコードをもっと大きく、正面から撮影してください。下の13桁を直接入力しても登録できます。","warn");
+      }
+    }catch(e){
+      setScan("画像解析に失敗しました。ISBNの13桁を直接入力してください。","err");
+    }finally{URL.revokeObjectURL(url)}
+  };
+  img.onerror=()=>{setScan("画像を開けませんでした。","err");URL.revokeObjectURL(url)};
+  img.src=url;
+}
+
+/* ===================== 書誌情報 ===================== */
+function classify(v){
+  const text=`${v.title||""} ${v.subtitle||""} ${(v.categories||[]).join(" ")} ${v.description||""}`.toLowerCase();
+  for(const [g,ws] of KEYWORDS)if(ws.some(w=>text.includes(w.toLowerCase())))return g;
+  return (v.categories?.[0]||"未分類");
+}
+function makeTags(v,g){
+  const text=`${v.title||""} ${(v.categories||[]).join(" ")} ${v.description||""}`.toLowerCase(),s=new Set();
+  if(g&&g!=="未分類")s.add(g);
+  KEYWORDS.forEach(([gg,ws])=>{if(ws.some(w=>text.includes(w.toLowerCase())))s.add(gg)});
+  (v.categories||[]).slice(0,3).forEach(x=>s.add(x));return [...s].slice(0,6);
+}
+async function lookupISBN(){
+  const isbn=normalizeISBN($("isbn").value);$("isbn").value=isbn;
+  if(!isbn){setForm("ISBNを入力してください。","warn");return}
+  if(!validISBN13(isbn)){setForm("13桁ISBNのチェックデジットが一致しません。番号を確認してください。","warn");return}
+  setForm("書誌情報を検索中…");
+
+  // 1) 日本の書籍に強い openBD を最初に検索
+  try{
+    const r=await fetch(`https://api.openbd.jp/v1/get?isbn=${encodeURIComponent(isbn)}`);
+    if(r.ok){
+      const d=await r.json();
+      const rec=d && d[0];
+      if(rec && rec.summary){
+        const s=rec.summary;
+        $("title").value=s.title||"";
+        $("authors").value=s.author||"";
+        $("publisher").value=s.publisher||"";
+        $("year").value=(s.pubdate||"").slice(0,4);
+        $("isbn").dataset.cover=s.cover||"";
+        $("isbn").dataset.description="";
+
+        // openBDの件名・内容情報から可能な範囲で分類
+        let cats=[];
+        try{
+          const subjects=rec.onix?.DescriptiveDetail?.Subject||[];
+          cats=subjects.map(x=>x.SubjectHeadingText||x.SubjectCode||"").filter(Boolean);
+        }catch{}
+        const v={title:s.title||"",categories:cats,description:""};
+        const g=classify(v);
+        $("genre").value=GENRES.includes(g)?g:"その他";
+        $("tags").value=makeTags(v,$("genre").value).join(", ");
+        setForm("openBDから書誌情報を取得しました。","ok");
+        return;
+      }
+    }
+  }catch(e){}
+
+  // 2) openBDに無い場合はGoogle Booksを検索
+  try{
+    const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}&maxResults=5`);
+    if(!r.ok)throw new Error("network");
+    const d=await r.json();if(!d.items?.length)throw new Error("notfound");
+    const v=d.items[0].volumeInfo||{};
+    $("title").value=[v.title,v.subtitle].filter(Boolean).join(" — ");
+    $("authors").value=(v.authors||[]).join(", ");
+    $("publisher").value=v.publisher||"";
+    $("year").value=(v.publishedDate||"").slice(0,4);
+    const g=classify(v);$("genre").value=GENRES.includes(g)?g:"その他";
+    $("tags").value=makeTags(v,$("genre").value).join(", ");
+    $("isbn").dataset.cover=v.imageLinks?.thumbnail?.replace("http:","https:")||"";
+    $("isbn").dataset.description=v.description||"";
+    setForm("Google Booksから書誌情報を取得しました。","ok");
+    return;
+  }catch(e){}
+
+  setForm("書誌情報を取得できませんでした。この本がデータベース未収録か、ローカルHTMLからの通信が制限されています。書名・著者等を手入力して登録できます。","warn");
+}
+
+/* ===================== 蔵書管理 ===================== */
+function save(){
+  try{
+    localStorage.setItem("homeLibraryBooks",JSON.stringify(books));
+  }catch(e){
+    alert("端末への保存に失敗しました。CSVまたは完全バックアップを保存してください。");
+  }
+  render();
+}
+
+const STATUS_OPTIONS={
+  book:["未読","読書中","読了"],
+  video:["未視聴","視聴中","視聴済"],
+  audio:["未聴","再生中","聴取済"],
+  other:["未確認","確認中","確認済"]
+};
+function progressGroup(type){
+  if(type==="book")return "book";
+  if(["dvd","bluray","vhs","video"].includes(type))return "video";
+  if(["cd","vinyl","cassette","audio"].includes(type))return "audio";
+  return "other";
+}
+function updateProgressOptions(selectedValue){
+  const group=progressGroup($("mediaType").value);
+  const opts=STATUS_OPTIONS[group]||STATUS_OPTIONS.other;
+  $("progressStatus").innerHTML=opts.map(x=>`<option>${x}</option>`).join("");
+  if(selectedValue && opts.includes(selectedValue))$("progressStatus").value=selectedValue;
+}
+
+function clearForm(){
+  ["isbn","title","authors","publisher","year","tags","shelf","level","notes",
+   "mediaCode","mediaTitle","director","studio","mediaYear","runtime","discCount",
+   "audioCode","audioTitle","artist","labelName","audioYear","catalogNo","audioDiscCount",
+   "otherCode","otherTitle","otherCreator","otherPublisher","otherYear","otherGenre"
+  ].forEach(id=>{if($(id))$(id).value=""});
+  $("genre").value="未分類";$("videoGenre").value="未分類";$("audioGenre").value="未分類";
+  $("mediaType").value="book";editingId=null;$("addBtn").textContent="＋ この内容で登録";updateProgressOptions();$("cancelEditBtn").style.display="none";$("editBanner").style.display="none";
+  delete $("isbn").dataset.cover;delete $("isbn").dataset.description;
+  updateMediaFields();setForm("");
+}
+function addBook(){
+  const mediaType=$("mediaType").value;
+  let record={mediaType};
+
+  if(mediaType==="book"){
+    const isbn=normalizeISBN($("isbn").value),title=$("title").value.trim();
+    if(!title&&!isbn){setForm("書名またはISBNが必要です。","warn");return}
+    if(isbn&&books.some(b=>b.isbn===isbn && b.id!==editingId)){setForm("同じISBNの本がすでに登録されています。","warn");return}
+    record={...record,isbn,title,authors:$("authors").value.trim(),publisher:$("publisher").value.trim(),
+      year:$("year").value.trim(),genre:$("genre").value,cover:$("isbn").dataset.cover||"",
+      description:$("isbn").dataset.description||""};
+  }else if(["dvd","bluray","vhs","video"].includes(mediaType)){
+    const mediaCode=$("mediaCode").value.trim(),title=$("mediaTitle").value.trim();
+    if(!title&&!mediaCode){setForm("作品名または管理番号が必要です。","warn");return}
+    record={...record,mediaCode,title,director:$("director").value.trim(),studio:$("studio").value.trim(),
+      year:$("mediaYear").value.trim(),runtime:$("runtime").value.trim(),discCount:$("discCount").value.trim(),
+      genre:$("videoGenre").value,cover:"",description:""};
+  }else if(["cd","vinyl","cassette","audio"].includes(mediaType)){
+    const mediaCode=$("audioCode").value.trim(),title=$("audioTitle").value.trim();
+    if(!title&&!mediaCode){setForm("タイトルまたは管理番号が必要です。","warn");return}
+    record={...record,mediaCode,title,artist:$("artist").value.trim(),labelName:$("labelName").value.trim(),
+      year:$("audioYear").value.trim(),catalogNo:$("catalogNo").value.trim(),
+      discCount:$("audioDiscCount").value.trim(),genre:$("audioGenre").value,cover:"",description:""};
+  }else{
+    const mediaCode=$("otherCode").value.trim(),title=$("otherTitle").value.trim();
+    if(!title&&!mediaCode){setForm("資料名または管理番号が必要です。","warn");return}
+    record={...record,mediaCode,title,creator:$("otherCreator").value.trim(),
+      publisher:$("otherPublisher").value.trim(),year:$("otherYear").value.trim(),
+      genre:$("otherGenre").value.trim()||"未分類",cover:"",description:""};
+  }
+
+  record.progressStatus=$("progressStatus").value;record.tags=$("tags").value.split(",").map(x=>x.trim()).filter(Boolean);
+  record.shelf=$("shelf").value.trim();record.level=$("level").value.trim();record.notes=$("notes").value.trim();
+
+  if(editingId){
+    const idx=books.findIndex(x=>x.id===editingId);
+    if(idx>=0){const old=books[idx]; books[idx]={id:old.id,addedAt:old.addedAt||new Date().toISOString(),...record,updatedAt:new Date().toISOString()};save();clearForm();setForm("登録内容を更新しました。","ok");return}
+  }
+  books.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),...record,addedAt:new Date().toISOString()});
+  save();clearForm();setForm("資料を追加しました。","ok");
+}
+function mediaTypeLabel(t){
+  return {book:"書籍",dvd:"DVD",bluray:"Blu-ray",vhs:"VHS",video:"映像ファイル",
+          cd:"CD",vinyl:"レコード",cassette:"カセットテープ",audio:"音声ファイル",other:"その他"}[t||"book"]||"その他";
+}
+function creatorText(b){
+  if((b.mediaType||"book")==="book")return b.authors||"";
+  if(["dvd","bluray","vhs","video"].includes(b.mediaType))return b.director||"";
+  if(["cd","vinyl","cassette","audio"].includes(b.mediaType))return b.artist||"";
+  return b.creator||"";
+}
+function publisherText(b){
+  if((b.mediaType||"book")==="book")return b.publisher||"";
+  if(["dvd","bluray","vhs","video"].includes(b.mediaType))return b.studio||"";
+  if(["cd","vinyl","cassette","audio"].includes(b.mediaType))return b.labelName||"";
+  return b.publisher||"";
+}
+function codeText(b){return (b.mediaType||"book")==="book"?(b.isbn||""):(b.mediaCode||"");}
+
+function defaultProgressForType(type){
+  const g=progressGroup(type||"book");
+  return (STATUS_OPTIONS[g]||STATUS_OPTIONS.other)[0];
+}
+
+function statusClass(status){
+  if(["読了","視聴済","聴取済","確認済"].includes(status))return "status-done";
+  if(["読書中","視聴中","再生中","確認中"].includes(status))return "status-doing";
+  return "status-pending";
+}
+function refreshFilterOptions(){
+  const currentStatus=$("statusFilter").value,currentLoc=$("locationFilter").value;
+  const statuses=[...new Set(books.map(b=>b.progressStatus||defaultProgressForType(b.mediaType)))].sort();
+  $("statusFilter").innerHTML='<option value="">すべての進捗</option>'+statuses.map(s=>`<option>${esc(s)}</option>`).join("");
+  if(statuses.includes(currentStatus))$("statusFilter").value=currentStatus;
+  const locs=[...new Set(books.map(b=>b.shelf).filter(Boolean))].sort();
+  $("locationFilter").innerHTML='<option value="">すべての保管場所</option>'+locs.map(s=>`<option>${esc(s)}</option>`).join("");
+  if(locs.includes(currentLoc))$("locationFilter").value=currentLoc;
+}
+function getFilteredBooks(){
+  const q=$("search").value.trim().toLowerCase();
+  const type=$("typeFilter").value,status=$("statusFilter").value,loc=$("locationFilter").value;
+  return books.filter(b=>{
+    if(q && !JSON.stringify(b).toLowerCase().includes(q))return false;
+    if(type && (b.mediaType||"book")!==type)return false;
+    const ps=b.progressStatus||defaultProgressForType(b.mediaType);
+    if(status && ps!==status)return false;
+    if(loc && b.shelf!==loc)return false;
+    return true;
+  });
+}
+function render(){
+  refreshFilterOptions();
+  const list=getFilteredBooks();
+  $("count").textContent=books.length;
+  $("unshelved").textContent=books.filter(b=>!b.shelf).length;
+  $("doneCount").textContent=books.filter(b=>["読了","視聴済","聴取済","確認済"].includes(b.progressStatus||defaultProgressForType(b.mediaType))).length;
+  $("activeCount").textContent=books.filter(b=>["読書中","視聴中","再生中","確認中"].includes(b.progressStatus||defaultProgressForType(b.mediaType))).length;
+  $("listSummary").textContent=`${list.length}点表示 / 全${books.length}点`;
+
+  $("listCards").innerHTML=list.length?list.map(b=>{
+    const ps=b.progressStatus||defaultProgressForType(b.mediaType);
+    return `<div class="itemCard" role="button" tabindex="0" data-id="${esc(b.id)}">
+      <div class="itemTop">
+        ${b.cover?`<img class="cover" src="${esc(b.cover)}">`:`<div class="cover"></div>`}
+        <div class="itemMain">
+          <div class="small muted">${esc(mediaTypeLabel(b.mediaType))}</div>
+          <div class="itemTitle">${esc(b.title||"(タイトル未登録)")}</div>
+          <div class="itemMeta">${esc(creatorText(b))}${publisherText(b)?` ／ ${esc(publisherText(b))}`:""}${b.year?` ／ ${esc(b.year)}`:""}</div>
+          <div class="itemMeta">${codeText(b)?`コード: ${esc(codeText(b))}`:""}${b.shelf?` ／ 保管: ${esc(b.shelf)}${b.level?` ${esc(b.level)}段`:""}`:""}</div>
+          <div class="itemBadges"><span class="badge">${esc(b.genre||"未分類")}</span><span class="badge ${statusClass(ps)}">${esc(ps)}</span></div>
+        </div>
+      </div>
+      <div class="itemActions">
+        <button class="ghost" data-action="detail" data-id="${esc(b.id)}">詳細</button>
+        <button class="ghost" data-action="edit" data-id="${esc(b.id)}">編集</button>
+        <button class="danger" data-action="delete" data-id="${esc(b.id)}">削除</button>
+      </div>
+    </div>`;
+  }).join(""):`<div class="empty">条件に一致する資料はありません。</div>`;
+
+  $("tbody").innerHTML=list.length?list.map(b=>{
+    const ps=b.progressStatus||defaultProgressForType(b.mediaType);
+    return `<tr>
+      <td>${b.cover?`<img class="cover" src="${esc(b.cover)}">`:`<div class="cover"></div>`}</td>
+      <td><div class="small muted">${esc(mediaTypeLabel(b.mediaType))}</div><div class="title">${esc(b.title||"(タイトル未登録)")}</div><div class="muted">${esc(creatorText(b))}</div><div class="small muted">${esc(codeText(b))}</div></td>
+      <td><span class="badge">${esc(b.genre||"未分類")}</span><span class="badge ${statusClass(ps)}">${esc(ps)}</span></td>
+      <td>${esc([b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / ")||"未配置")}</td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap"><button class="ghost" onclick="showBook('${b.id}')">詳細</button><button class="ghost" onclick="editRecord('${b.id}')">編集</button><button class="danger" onclick="deleteBook('${b.id}')">削除</button></div></td>
+    </tr>`;
+  }).join(""):`<tr><td colspan="5" class="empty">条件に一致する資料はありません。</td></tr>`;
+}
+window.showBook=id=>{
+  const b=books.find(x=>x.id===id);if(!b)return;
+  $("mTitle").textContent=b.title||"詳細";
+  const t=b.mediaType||"book";
+  let extra="";
+  if(t==="book")extra=`<div><b>ISBN:</b> ${esc(b.isbn||"")}</div><div><b>著者:</b> ${esc(b.authors||"")}</div><div><b>出版社:</b> ${esc(b.publisher||"")}　<b>年:</b> ${esc(b.year||"")}</div>${b.description?`<div style="margin-top:8px"><b>書誌説明:</b><div class="compactSummary">${esc(b.description)}</div></div>`:""}`;
+  else if(["dvd","bluray","vhs","video"].includes(t))extra=`<div><b>管理番号:</b> ${esc(b.mediaCode||"")}</div><div><b>監督 / 制作者:</b> ${esc(b.director||"")}</div><div><b>発売元 / 配給:</b> ${esc(b.studio||"")}　<b>年:</b> ${esc(b.year||"")}</div><div><b>収録時間:</b> ${esc(b.runtime||"")}　<b>枚数 / 本数:</b> ${esc(b.discCount||"")}</div>`;
+  else if(["cd","vinyl","cassette","audio"].includes(t))extra=`<div><b>管理番号:</b> ${esc(b.mediaCode||"")}</div><div><b>アーティスト:</b> ${esc(b.artist||"")}</div><div><b>レーベル:</b> ${esc(b.labelName||"")}　<b>年:</b> ${esc(b.year||"")}</div><div><b>カタログ番号:</b> ${esc(b.catalogNo||"")}　<b>枚数 / 本数:</b> ${esc(b.discCount||"")}</div>`;
+  else extra=`<div><b>管理番号:</b> ${esc(b.mediaCode||"")}</div><div><b>作成者:</b> ${esc(b.creator||"")}</div><div><b>発行元 / 制作元:</b> ${esc(b.publisher||"")}　<b>年:</b> ${esc(b.year||"")}</div>`;
+
+  $("mBody").innerHTML=`<div><strong>${esc(b.title||"")}</strong></div><div class="muted">${esc(mediaTypeLabel(t))}</div><hr>
+  ${extra}
+  <div><b>ジャンル:</b> ${esc(b.genre||"")}</div>
+  <div><b>進捗状態:</b> ${esc(b.progressStatus||defaultProgressForType(b.mediaType))}</div>
+  <div><b>タグ:</b> ${(b.tags||[]).map(esc).join(", ")}</div>
+  <div><b>場所:</b> ${esc([b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / ")||"未配置")}</div>
+  <div><b>備考:</b> ${esc(b.notes||"")||"—"}</div><div class="compactSummary"><b>登録:</b> ${esc((b.addedAt||"").slice(0,10))||"—"}${b.updatedAt?` ／ <b>更新:</b> ${esc((b.updatedAt||"").slice(0,10))}`:""}</div><hr>
+  <div class="row">
+    <button onclick="editRecord('${b.id}')">編集</button>
+    <button class="danger" onclick="deleteBook('${b.id}')">削除</button>
+  </div>`;
+  $("modal").classList.add("show");
+};
+
+window.editRecord=id=>{
+  const b=books.find(x=>x.id===id);if(!b)return;
+  editingId=id;
+  $("modal").classList.remove("show");
+  $("mediaType").value=b.mediaType||"book";
+  updateMediaFields();
+  updateProgressOptions(b.progressStatus||defaultProgressForType(b.mediaType));
+
+  $("tags").value=(b.tags||[]).join(", ");
+  $("shelf").value=b.shelf||"";
+  $("level").value=b.level||"";
+  $("notes").value=b.notes||"";
+
+  const t=b.mediaType||"book";
+  if(t==="book"){
+    $("isbn").value=b.isbn||"";
+    $("title").value=b.title||"";
+    $("authors").value=b.authors||"";
+    $("publisher").value=b.publisher||"";
+    $("year").value=b.year||"";
+    $("genre").value=b.genre||"未分類";
+    $("isbn").dataset.cover=b.cover||"";
+    $("isbn").dataset.description=b.description||"";
+  }else if(["dvd","bluray","vhs","video"].includes(t)){
+    $("mediaCode").value=b.mediaCode||"";
+    $("mediaTitle").value=b.title||"";
+    $("director").value=b.director||"";
+    $("studio").value=b.studio||"";
+    $("mediaYear").value=b.year||"";
+    $("runtime").value=b.runtime||"";
+    $("discCount").value=b.discCount||"";
+    $("videoGenre").value=b.genre||"未分類";
+  }else if(["cd","vinyl","cassette","audio"].includes(t)){
+    $("audioCode").value=b.mediaCode||"";
+    $("audioTitle").value=b.title||"";
+    $("artist").value=b.artist||"";
+    $("labelName").value=b.labelName||"";
+    $("audioYear").value=b.year||"";
+    $("catalogNo").value=b.catalogNo||"";
+    $("audioDiscCount").value=b.discCount||"";
+    $("audioGenre").value=b.genre||"未分類";
+  }else{
+    $("otherCode").value=b.mediaCode||"";
+    $("otherTitle").value=b.title||"";
+    $("otherCreator").value=b.creator||"";
+    $("otherPublisher").value=b.publisher||"";
+    $("otherYear").value=b.year||"";
+    $("otherGenre").value=b.genre||"";
+  }
+
+  $("addBtn").textContent="💾 変更を保存";
+  $("cancelEditBtn").style.display="";
+  $("editBanner").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+  setForm("既存資料を編集中です。変更後に「変更を保存」を押してください。","ok");
+};
+
+window.deleteBook=id=>{
+  const b=books.find(x=>x.id===id);
+  if(!b)return;
+  const label=b.title?`「${b.title}」`:"この資料";
+  if(confirm(`${label}を削除しますか？\nこの操作は取り消せません。`)){
+    books=books.filter(x=>x.id!==id);
+    if(editingId===id)clearForm();
+    save();
+    $("modal").classList.remove("show");
+    setForm("資料を削除しました。","ok");
+  }
+};
+
+/* ===================== CSV ===================== */
+function csvEscape(v){const s=Array.isArray(v)?v.join("|"):String(v??"");return `"${s.replaceAll('"','""')}"`}
+function exportCSV(){
+  const cols=["mediaType","isbn","mediaCode","title","authors","director","artist","creator","publisher","studio","labelName","year","runtime","discCount","catalogNo","genre","progressStatus","tags","shelf","level","notes","addedAt","updatedAt"];
+  const csv=["\ufeff"+cols.join(","),...books.map(b=>cols.map(c=>csvEscape(b[c])).join(","))].join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=`蔵書一覧_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+function parseCSV(text){
+  const rows=[];let row=[],cell="",q=false;
+  for(let i=0;i<text.length;i++){const ch=text[i],nx=text[i+1];
+    if(q){if(ch=='"'&&nx=='"'){cell+='"';i++}else if(ch=='"')q=false;else cell+=ch}
+    else{if(ch=='"')q=true;else if(ch==","){row.push(cell);cell=""}else if(ch=="\n"){row.push(cell.replace(/\r$/,""));rows.push(row);row=[];cell=""}else cell+=ch}}
+  if(cell||row.length){row.push(cell);rows.push(row)}return rows;
+}
+async function importCSV(file){
+  const rows=parseCSV((await file.text()).replace(/^\ufeff/,""));
+  if(rows.length<2){alert("CSVに読み込めるデータがありません。");return}
+  const headers=rows[0];
+  const incoming=rows.slice(1).map(r=>{
+    const o={};
+    headers.forEach((h,i)=>o[h]=r[i]??"");
+    o.id=crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());
+    o.tags=(o.tags||"").split("|").filter(Boolean);
+    o.cover=o.cover||"";
+    o.description=o.description||"";
+    o.mediaType=o.mediaType||"book";
+    o.progressStatus=o.progressStatus||defaultProgressForType(o.mediaType);
+    return o;
+  }).filter(b=>b.title||b.isbn||b.mediaCode);
+
+  const keys=new Set(
+    books.map(b=>b.isbn?`isbn:${b.isbn}`:(b.mediaCode?`code:${b.mediaCode}`:"")).filter(Boolean)
+  );
+  const add=[];
+  for(const b of incoming){
+    const k=b.isbn?`isbn:${b.isbn}`:(b.mediaCode?`code:${b.mediaCode}`:"");
+    if(k && keys.has(k))continue;
+    if(k)keys.add(k);
+    add.push(b);
+  }
+  books=[...add,...books];
+  save();
+  alert(`${add.length}点を読み込みました。`);
+}
+
+
+function updateMediaFields(){
+  const t=$("mediaType").value;
+  const isBook=t==="book",isVideo=["dvd","bluray","vhs","video"].includes(t),isAudio=["cd","vinyl","cassette","audio"].includes(t);
+  $("bookFields").style.display=isBook?"block":"none";
+  $("videoFields").style.display=isVideo?"block":"none";
+  $("audioFields").style.display=isAudio?"block":"none";
+  $("otherFields").style.display=(!isBook&&!isVideo&&!isAudio)?"block":"none";
+  if($("cameraBtn"))$("cameraBtn").parentElement.style.display=isBook?"flex":"none";
+  if($("scanStatus"))$("scanStatus").style.display=isBook?"block":"none";
+  if($("preview"))$("preview").style.display=isBook&&$("preview").src?"block":"none";
+}
+$("mediaType").addEventListener("change",()=>{updateMediaFields();updateProgressOptions();});
+updateMediaFields();updateProgressOptions();
+
+
+/* ===================== Excel / 完全バックアップ ===================== */
+function downloadBlob(blob,filename){
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1200);
+}
+function xmlEscape(s){return String(s??"").replace(/[<>&'"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;","'":"&apos;",'"':"&quot;"}[c]));}
+function wText(s,bold=false){
+  const rPr=bold?"<w:rPr><w:b/></w:rPr>":"";
+  return `<w:p><w:r>${rPr}<w:t xml:space="preserve">${xmlEscape(s)}</w:t></w:r></w:p>`;
+}
+function wCell(text,width,bold=false){
+  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/></w:tcPr>${wText(text,bold)}</w:tc>`;
+}
+async function exportExcel(){
+  if(!books.length){alert("保存する資料がありません。");return}
+
+  const headers=[
+    "種別","タイトル","作成者","出版・発売元","年","ISBN/管理番号",
+    "ジャンル","進捗状態","保管場所","タグ","備考","登録日","更新日"
+  ];
+
+  const rows=books.map(b=>[
+    mediaTypeLabel(b.mediaType),
+    b.title||"",
+    creatorText(b),
+    publisherText(b),
+    b.year||"",
+    codeText(b),
+    b.genre||"",
+    b.progressStatus||defaultProgressForType(b.mediaType),
+    [b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / "),
+    (b.tags||[]).join(" / "),
+    b.notes||"",
+    (b.addedAt||"").slice(0,10),
+    (b.updatedAt||"").slice(0,10)
+  ]);
+
+  function colName(n){
+    let s="";
+    while(n>0){n--;s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26)}
+    return s;
+  }
+  function cellXml(value,row,col,style=0){
+    const ref=colName(col)+row;
+    const val=xmlEscape(value??"");
+    return `<c r="${ref}" t="inlineStr"${style?` s="${style}"`:""}><is><t xml:space="preserve">${val}</t></is></c>`;
+  }
+
+  let sheetRows="";
+  sheetRows+=`<row r="1" ht="24" customHeight="1">${headers.map((v,i)=>cellXml(v,1,i+1,1)).join("")}</row>`;
+  rows.forEach((r,idx)=>{
+    const rn=idx+2;
+    sheetRows+=`<row r="${rn}">${r.map((v,i)=>cellXml(v,rn,i+1,2)).join("")}</row>`;
+  });
+
+  const lastRow=rows.length+1,lastCol=colName(headers.length);
+  const widths=[12,32,24,24,10,20,18,14,22,28,36,14,14];
+  const cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("");
+
+  const sheetXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+    <sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+    <sheetFormatPr defaultRowHeight="18"/>
+    <cols>${cols}</cols>
+    <sheetData>${sheetRows}</sheetData>
+    <autoFilter ref="A1:${lastCol}${lastRow}"/>
+  </worksheet>`;
+
+  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+    <fonts count="2">
+      <font><sz val="11"/><name val="Aptos"/></font>
+      <font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Aptos"/></font>
+    </fonts>
+    <fills count="3">
+      <fill><patternFill patternType="none"/></fill>
+      <fill><patternFill patternType="gray125"/></fill>
+      <fill><patternFill patternType="solid"><fgColor rgb="FF111827"/><bgColor indexed="64"/></patternFill></fill>
+    </fills>
+    <borders count="2">
+      <border><left/><right/><top/><bottom/><diagonal/></border>
+      <border>
+        <left style="thin"><color rgb="FFE5E7EB"/></left>
+        <right style="thin"><color rgb="FFE5E7EB"/></right>
+        <top style="thin"><color rgb="FFE5E7EB"/></top>
+        <bottom style="thin"><color rgb="FFE5E7EB"/></bottom>
+        <diagonal/>
+      </border>
+    </borders>
+    <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+    <cellXfs count="3">
+      <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+      <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">
+        <alignment horizontal="center" vertical="center" wrapText="1"/>
+      </xf>
+      <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1">
+        <alignment vertical="top" wrapText="1"/>
+      </xf>
+    </cellXfs>
+    <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+  </styleSheet>`;
+
+  const zip=new JSZip();
+  zip.file("[Content_Types].xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+    <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+    <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+    <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
+    <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
+  </Types>`);
+  zip.folder("_rels").file(".rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+    <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+  </Relationships>`);
+  zip.folder("xl").file("workbook.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets><sheet name="所蔵資料一覧" sheetId="1" r:id="rId1"/></sheets>
+  </workbook>`);
+  zip.folder("xl").folder("_rels").file("workbook.xml.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  </Relationships>`);
+  zip.folder("xl").folder("worksheets").file("sheet1.xml",sheetXml);
+  zip.folder("xl").file("styles.xml",stylesXml);
+  zip.folder("docProps").file("core.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+    xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:title>所蔵資料一覧</dc:title><dc:creator>蔵書・AV資料管理ツール</dc:creator>
+    <dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:created>
+  </cp:coreProperties>`);
+  zip.folder("docProps").file("app.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+    xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+    <Application>蔵書・AV資料管理ツール</Application>
+  </Properties>`);
+
+  const blob=await zip.generateAsync({
+    type:"blob",
+    mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+  downloadBlob(blob,`所蔵資料一覧_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function exportBackup(){
+  const payload={format:"home-library-backup",version:4.1,exportedAt:new Date().toISOString(),records:books};
+  downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"}),
+    `所蔵資料_完全バックアップ_${new Date().toISOString().slice(0,10)}.json`);
+}
+async function restoreBackup(file){
+  try{
+    const data=JSON.parse(await file.text());
+    const records=Array.isArray(data)?data:data.records;
+    if(!Array.isArray(records))throw new Error("invalid");
+    if(!confirm(`バックアップの ${records.length} 点で現在のデータを置き換えます。よろしいですか？`))return;
+
+    books=records.map((r,i)=>({
+      ...r,
+      id:r.id||(crypto.randomUUID?crypto.randomUUID():String(Date.now()+i+Math.random())),
+      mediaType:r.mediaType||"book",
+      progressStatus:r.progressStatus||defaultProgressForType(r.mediaType||"book"),
+      tags:Array.isArray(r.tags)?r.tags:(typeof r.tags==="string"?r.tags.split("|").filter(Boolean):[])
+    }));
+    editingId=null;
+    save();
+    clearForm();
+    alert(`${books.length} 点を復元しました。`);
+  }catch(e){
+    alert("バックアップファイルを読み込めませんでした。");
+  }
+}
+
+
+let listCollapsed=localStorage.getItem("homeLibraryListCollapsed")==="1";
+function applyListCollapse(){
+  $("listArea").classList.toggle("collapsed",listCollapsed);
+  $("collapseBtn").textContent=listCollapsed?"一覧を展開":"一覧を折りたたむ";
+}
+$("collapseBtn").onclick=()=>{
+  listCollapsed=!listCollapsed;
+  try{localStorage.setItem("homeLibraryListCollapsed",listCollapsed?"1":"0")}catch(e){}
+  applyListCollapse();
+};
+$("listCards").addEventListener("click",e=>{
+  const actionBtn=e.target.closest("[data-action]");
+  if(actionBtn){
+    e.stopPropagation();
+    const id=actionBtn.dataset.id;
+    if(actionBtn.dataset.action==="detail")showBook(id);
+    else if(actionBtn.dataset.action==="edit")editRecord(id);
+    else if(actionBtn.dataset.action==="delete")deleteBook(id);
+    return;
+  }
+  const card=e.target.closest(".itemCard[data-id]");
+  if(card)showBook(card.dataset.id);
+});
+$("listCards").addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ") && !e.target.closest("[data-action]")){
+    const card=e.target.closest(".itemCard[data-id]");
+    if(card){e.preventDefault();showBook(card.dataset.id)}
+  }
+});
+applyListCollapse();
+
+
+let helpHidden=localStorage.getItem("homeLibraryHelpHidden")==="1";
+function applyHelpState(){
+  if($("firstUseHelp"))$("firstUseHelp").style.display=helpHidden?"none":"block";
+}
+$("hideHelpBtn").onclick=()=>{
+  helpHidden=true;
+  try{localStorage.setItem("homeLibraryHelpHidden","1")}catch(e){}
+  applyHelpState();
+};
+applyHelpState();
+
+/* ===================== Events ===================== */
+$("cameraBtn").onclick=()=>$("cameraInput").click();
+$("galleryBtn").onclick=()=>$("galleryInput").click();
+$("cameraInput").onchange=e=>{if(e.target.files[0])decodeImageFile(e.target.files[0]);e.target.value=""};
+$("galleryInput").onchange=e=>{if(e.target.files[0])decodeImageFile(e.target.files[0]);e.target.value=""};
+$("lookupBtn").onclick=lookupISBN;$("addBtn").onclick=addBook;$("clearBtn").onclick=clearForm;$("cancelEditBtn").onclick=clearForm;
+$("search").oninput=render;$("typeFilter").onchange=render;$("statusFilter").onchange=render;$("locationFilter").onchange=render;$("excelBtn").onclick=exportExcel;$("exportBtn").onclick=exportCSV;$("backupBtn").onclick=exportBackup;$("restoreBtn").onclick=()=>$("restoreInput").click();$("importBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=e=>{if(e.target.files[0])importCSV(e.target.files[0]);e.target.value=""};$("restoreInput").onchange=e=>{if(e.target.files[0])restoreBackup(e.target.files[0]);e.target.value=""};
+$("closeModal").onclick=()=>$("modal").classList.remove("show");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};
+$("isbn").addEventListener("keydown",e=>{if(e.key==="Enter")lookupISBN()});
+render();
+</script>
+</body>
+</html>
