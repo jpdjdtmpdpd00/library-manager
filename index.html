@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>蔵書・AV資料管理 — 蔵書・AV資料管理 v6.6.28</title>
+<title>蔵書・AV資料管理 — 蔵書・AV資料管理 v6.6.27</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--ok:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
@@ -50,7 +50,8 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 .compactSummary{font-size:12px;color:var(--muted);margin:6px 0 0}
 .backupBox{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px}
 .stickyActions{position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding-top:10px;margin-top:12px;border-top:1px solid var(--line)}
-#listCards{display:block}@media(min-width:900px){#listCards{display:none}}
+#listCards{display:block}#tableWrap{display:none}
+@media(min-width:900px){#listCards{display:none}#tableWrap{display:block}}
 </style>
 
 
@@ -60,7 +61,10 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 .itemCard:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .itemActions{position:relative;z-index:2}
 .collapseBar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0 10px}
-.collapseBar .summary{font-size:12px;color:var(--muted)}#collapseBtn{white-space:nowrap}
+.collapseBar .summary{font-size:12px;color:var(--muted)}
+#listArea.collapsed #listCards,
+#listArea.collapsed #tableWrap{display:none!important}
+#collapseBtn{white-space:nowrap}
 </style>
 
 
@@ -229,6 +233,16 @@ button:active{transform:translateY(1px)}
 .filterStatus.active{background:#eef2ff;color:#3730a3;font-weight:600}
 #resetFiltersBtn.hasFilters{font-weight:700;border-width:2px}
 .filterGrid input.filterActive,.filterGrid select.filterActive{border-width:2px}
+</style><style id="v6616-list-fix">
+/* 一覧表示は端末幅に関係なくカード表示へ統一 */
+#libraryPanel #listArea{display:block!important}
+#libraryPanel #listCards{display:block!important}
+#libraryPanel #tableWrap{display:none!important}
+#libraryPanel .itemCard{display:block!important}
+</style><style id="v6617-simple-list">
+#libraryPanel #listArea,#libraryPanel #listCards{display:block!important;visibility:visible!important;opacity:1!important}
+#libraryPanel .itemCard{display:block!important;visibility:visible!important;opacity:1!important;min-height:80px}
+#listHealth{margin-left:8px}
 </style><style id="v6619-bibliographic-list">
 #libraryPanel .itemCard{padding:13px;margin-bottom:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
 .itemHeaderLine{display:flex;align-items:center;gap:7px;margin-bottom:3px}
@@ -267,17 +281,17 @@ button:active{transform:translateY(1px)}
 #libraryPanel .resultCard .bibRow{display:grid!important;grid-template-columns:88px minmax(0,1fr)!important;height:auto!important}
 #showAllBooksBtn{margin-left:6px}
 @media(max-width:480px){#showAllBooksBtn{margin-left:0;margin-top:6px;width:100%}}
-</style><style id="v6627-ios-compat">
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{padding-left:max(0px,env(safe-area-inset-left));padding-right:max(0px,env(safe-area-inset-right));padding-bottom:max(0px,env(safe-area-inset-bottom))}
-button,input,select,textarea{font-family:inherit}
-@media(max-width:600px){
-  input,select,textarea{font-size:16px!important}
-  button{min-height:44px}
-}
-#bottomNav{padding-bottom:max(0px,env(safe-area-inset-bottom))}
-.itemCard,.resultCard{-webkit-transform:translateZ(0)}
-</style></head>
+</style><style id="v6627-bottom-scroll-fix">
+html{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important}
+body{height:auto!important;min-height:100dvh!important;overflow-x:hidden!important;overflow-y:visible!important;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important}
+main,.app,.container,#registerPanel,#libraryPanel,#settingsPanel,#listArea,#listCards{height:auto!important;max-height:none!important;overflow:visible!important}
+#libraryPanel{padding-bottom:40px!important}
+#listCards .resultCard:last-child{margin-bottom:36px!important}
+#bottomNav{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important}
+.bottomScrollSpacer{display:block!important;height:calc(90px + env(safe-area-inset-bottom,0px))!important;width:100%!important;pointer-events:none}
+@supports not (height:100dvh){body{min-height:100vh!important}}
+</style>
+</head>
 <body>
 <header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">蔵書・AV資料管理 v6.6・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
 
@@ -499,7 +513,8 @@ button,input,select,textarea{font-family:inherit}
       <option value="yearDesc">発行年・発売年順</option>
       <option value="shelf">本棚・場所順</option>
     </select>
-    <label class="settingCheck"></div>
+    <label class="settingCheck"><input id="keepListOpenSetting" type="checkbox"> 一覧を最初から表示する</label>
+  </div>
 
   <div class="settingGroup">
     <div class="sectionTitle">登録</div>
@@ -543,6 +558,7 @@ button,input,select,textarea{font-family:inherit}
   </div>
 </section>
 </main>
+<div class="bottomScrollSpacer" aria-hidden="true"></div>
 <nav class="bottomNav" id="bottomNav" aria-label="メインメニュー"><button type="button" data-panel="register" aria-label="登録画面" class="active"><span class="navIcon">＋</span>登録</button><button type="button" data-panel="library" aria-label="一覧画面"><span class="navIcon">📚</span>一覧</button><button type="button" data-panel="settings" aria-label="設定画面"><span class="navIcon">⚙️</span>設定</button></nav>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="modal" class="modal"><div class="sheet"><div class="row"><strong id="mTitle">詳細</strong><button type="button" id="closeModal" class="secondary">閉じる</button></div><div id="mBody" style="margin-top:10px"></div></div></div>
@@ -556,12 +572,7 @@ const SafeStorage={
   remove(key){try{window.localStorage.removeItem(key);return true}catch(e){return false}}
 };
 function makeId(){
-  try{
-    if(window.crypto&&typeof window.crypto.getRandomValues==="function"){
-      const a=new Uint32Array(2);window.crypto.getRandomValues(a);
-      return Date.now().toString(36)+"-"+a[0].toString(36)+a[1].toString(36);
-    }
-  }catch(e){}
+  try{if(window.crypto&&typeof window.crypto.randomUUID==="function")return window.crypto.randomUUID()}catch(e){}
   return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2)+"-"+Math.random().toString(36).slice(2);
 }
 /* ===================== 基本データ ===================== */
@@ -602,7 +613,7 @@ try{saved=JSON.parse(SafeStorage.get("homeLibraryBooks","[]")||"[]");if(!Array.i
 }
 let editingId=null;
 
-function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
 function normalizeISBN(s){return (s||"").replace(/[^0-9Xx]/g,"").toUpperCase();}
 function validEAN13(s){
   if(!/^\d{13}$/.test(s))return false;
@@ -903,7 +914,7 @@ async function lookupMediaByBarcode(code){
 function classify(v){
   const text=`${v.title||""} ${v.subtitle||""} ${(v.categories||[]).join(" ")} ${v.description||""}`.toLowerCase();
   for(const [g,ws] of KEYWORDS)if(ws.some(w=>text.includes(w.toLowerCase())))return g;
-  return ((v.categories&&v.categories[0])||"未分類");
+  return (v.categories?.[0]||"未分類");
 }
 function makeTags(v,g){
   const text=`${v.title||""} ${(v.categories||[]).join(" ")} ${v.description||""}`.toLowerCase(),s=new Set();
@@ -935,7 +946,7 @@ async function lookupISBN(){
         // openBDの件名・内容情報から可能な範囲で分類
         let cats=[];
         try{
-          const subjects=(rec.onix&&rec.onix.DescriptiveDetail&&rec.onix.DescriptiveDetail.Subject)||[];
+          const subjects=rec.onix?.DescriptiveDetail?.Subject||[];
           cats=subjects.map(x=>x.SubjectHeadingText||x.SubjectCode||"").filter(Boolean);
         }catch{}
         const v={title:s.title||"",categories:cats,description:""};
@@ -952,7 +963,7 @@ async function lookupISBN(){
   try{
     const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}&maxResults=5`);
     if(!r.ok)throw new Error("network");
-    const d=await r.json();if(!(d.items&&d.items.length))throw new Error("notfound");
+    const d=await r.json();if(!d.items?.length)throw new Error("notfound");
     const v=d.items[0].volumeInfo||{};
     $("title").value=[v.title,v.subtitle].filter(Boolean).join(" — ");
     $("authors").value=(v.authors||[]).join(", ");
@@ -960,7 +971,7 @@ async function lookupISBN(){
     $("year").value=(v.publishedDate||"").slice(0,4);
     const g=classify(v);$("genre").value=GENRES.includes(g)?g:"その他";
     $("tags").value=makeTags(v,$("genre").value).join(", ");
-    $("isbn").dataset.cover=(v.imageLinks&&v.imageLinks.thumbnail?v.imageLinks.thumbnail.replace("http:","https:"):"")||"";
+    $("isbn").dataset.cover=v.imageLinks?.thumbnail?.replace("http:","https:")||"";
     $("isbn").dataset.description=v.description||"";
     setForm("Google Booksから書誌情報を取得しました。","ok");
     return;
@@ -1093,10 +1104,10 @@ function statusClass(status){
 }
 
 let activeTag="";
-function normalizeText(v){return String(v==null?"":v).trim().toLowerCase();}
+function normalizeText(v){return String(v??"").trim().toLowerCase();}
 function normalizedTags(b){
   const v=b&&b.tags;
-  if(Array.isArray(v))return v.map(x=>String(x==null?"":x).trim()).filter(Boolean);
+  if(Array.isArray(v))return v.map(x=>String(x??"").trim()).filter(Boolean);
   if(typeof v==="string")return v.split(/[|,、]/).map(x=>x.trim()).filter(Boolean);
   if(v===null||v===undefined)return [];
   try{return [String(v).trim()].filter(Boolean)}catch(e){return []}
@@ -1104,7 +1115,7 @@ function normalizedTags(b){
 function refreshTagFilters(){
   const host=$("tagFilters"),count=$("tagFilterCount");
   if(!host)return;
-  const tags=[...new Set([].concat.apply([],books.map(normalizedTags)))].sort((a,b)=>a.localeCompare(b,"ja"));
+  const tags=[...new Set(books.flatMap(normalizedTags))].sort((a,b)=>a.localeCompare(b,"ja"));
   if(activeTag && !tags.includes(activeTag))activeTag="";
   host.innerHTML=`<button type="button" class="tagFilter ${activeTag?"":"active"}" data-tag="">すべて</button>`+
     tags.map(t=>`<button type="button" class="tagFilter ${activeTag===t?"active":""}" data-tag="${esc(t)}">${esc(t)}</button>`).join("");
@@ -1145,10 +1156,10 @@ function updateFilterFeedback(listLength){
   $("locationFilter").classList.toggle("filterActive",!!loc);
 } 
 function getFilteredBooks(){
-  const q=normalizeText(($("search")?$("search").value:"")||"");
-  const type=normalizeText(($("typeFilter")?$("typeFilter").value:"")||"");
-  const status=normalizeText(($("statusFilter")?$("statusFilter").value:"")||"");
-  const loc=normalizeText(($("locationFilter")?$("locationFilter").value:"")||"");
+  const q=normalizeText($("search")?.value||"");
+  const type=normalizeText($("typeFilter")?.value||"");
+  const status=normalizeText($("statusFilter")?.value||"");
+  const loc=normalizeText($("locationFilter")?.value||"");
   const tag=normalizeText(activeTag);
 
   const matches=books.filter(b=>{
@@ -1186,7 +1197,7 @@ function getFilteredBooks(){
   return matches;
 }
 
-function recordIdEquals(a,b){return String(a==null?"":a)===String(b==null?"":b)}
+function recordIdEquals(a,b){return String(a??"")===String(b??"")}
 function recordTitle(b){return b.title||b.name||b.mediaTitle||b.audioTitle||b.otherTitle||"(タイトル未登録)"}
 function normalizeRecordForDisplay(b){
   return {...b,mediaType:b.mediaType||"book",title:recordTitle(b),tags:normalizedTags(b),
@@ -1227,7 +1238,7 @@ function renderRecordCard(b){
   const title=recordTitle(b);
   const article=document.createElement("article");
   article.className="itemCard resultCard";
-  article.dataset.id=String(b.id==null?"":b.id);
+  article.dataset.id=String(b.id??"");
   const rows=bibliographicRows(b);
   const location=[b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / ")||"未設定";
   const tags=normalizedTags(b);
@@ -1242,9 +1253,9 @@ function renderRecordCard(b){
       <div><b>登録日:</b> ${esc((b.addedAt||"").slice?((b.addedAt||"").slice(0,10)||"—"):"—")}</div>
     </div></details>
     <div class="itemActions">
-      <button type="button" class="ghost" data-action="detail" data-id="${esc(String(b.id==null?"":b.id))}">詳細画面</button>
-      <button type="button" class="ghost" data-action="edit" data-id="${esc(String(b.id==null?"":b.id))}">編集</button>
-      <button type="button" class="danger" data-action="delete" data-id="${esc(String(b.id==null?"":b.id))}">登録から削除</button>
+      <button type="button" class="ghost" data-action="detail" data-id="${esc(String(b.id??""))}">詳細画面</button>
+      <button type="button" class="ghost" data-action="edit" data-id="${esc(String(b.id??""))}">編集</button>
+      <button type="button" class="danger" data-action="delete" data-id="${esc(String(b.id??""))}">登録から削除</button>
     </div>`;
   return article;
 }
@@ -1293,10 +1304,10 @@ function render(){
       failed++;
       const fallback=document.createElement("article");
       fallback.className="itemCard resultCard";
-      fallback.dataset.id=String((b&&b.id)!=null?b.id:"");
+      fallback.dataset.id=String(b?.id??"");
       fallback.innerHTML=`<div class="listBookTitle">${esc(safeDisplayValue(recordTitle(b||{})))}</div>
         <div class="small muted">一部の書誌情報を読み込めませんでしたが、資料自体は登録されています。</div>
-        <div class="itemActions"><button type="button" class="ghost" data-action="detail" data-id="${esc(String((b&&b.id)!=null?b.id:""))}">詳細画面</button><button type="button" class="danger" data-action="delete" data-id="${esc(String((b&&b.id)!=null?b.id:""))}">登録から削除</button></div>`;
+        <div class="itemActions"><button type="button" class="ghost" data-action="detail" data-id="${esc(String(b?.id??""))}">詳細画面</button><button type="button" class="danger" data-action="delete" data-id="${esc(String(b?.id??""))}">登録から削除</button></div>`;
       cards.appendChild(fallback);
     }
   });
@@ -1322,8 +1333,8 @@ window.showBook=id=>{
   <div><b>場所:</b> ${esc([b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / ")||"未配置")}</div>
   <div><b>備考:</b> ${esc(b.notes||"")||"—"}</div><div class="compactSummary"><b>登録:</b> ${esc((b.addedAt||"").slice(0,10))||"—"}${b.updatedAt?` ／ <b>更新:</b> ${esc((b.updatedAt||"").slice(0,10))}`:""}</div><hr>
   <div class="row">
-    <button type="button" data-modal-action="edit" data-id="${esc(String(b.id==null?"":b.id))}">編集</button>
-    <button type="button" class="danger" data-modal-action="delete" data-id="${esc(String(b.id==null?"":b.id))}">削除</button>
+    <button type="button" data-modal-action="edit" data-id="${esc(String(b.id??""))}">編集</button>
+    <button type="button" class="danger" data-modal-action="delete" data-id="${esc(String(b.id??""))}">削除</button>
   </div>`;
   $("modal").classList.add("show");
 };
@@ -1400,7 +1411,7 @@ window.deleteBook=id=>{
 };
 
 /* ===================== CSV ===================== */
-function csvEscape(v){const s=Array.isArray(v)?v.join("|"):String(v==null?"":v);return `"${s.replace(/\"/g,'\"\"')}"`}
+function csvEscape(v){const s=Array.isArray(v)?v.join("|"):String(v??"");return `"${s.replace(/\"/g,'\"\"')}"`}
 function exportCSV(){
   const cols=["mediaType","isbn","mediaCode","title","authors","director","artist","creator","publisher","studio","labelName","year","runtime","discCount","catalogNo","genre","progressStatus","tags","shelf","level","notes","addedAt","updatedAt"];
   const csv=["\ufeff"+cols.join(","),...books.map(b=>cols.map(c=>csvEscape(b[c])).join(","))].join("\n");
@@ -1420,7 +1431,7 @@ async function importCSV(file){
   const headers=rows[0];
   const incoming=rows.slice(1).map(r=>{
     const o={};
-    headers.forEach((h,i)=>o[h]=r[i]==null?"":r[i]);
+    headers.forEach((h,i)=>o[h]=r[i]??"");
     o.id=makeId();
     o.tags=(o.tags||"").split("|").filter(Boolean);
     o.cover=o.cover||"";
@@ -1472,7 +1483,7 @@ function downloadBlob(blob,filename){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1200);
 }
-function xmlEscape(s){return String(s==null?"":s).replace(/[<>&'"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;","'":"&apos;",'"':"&quot;"}[c]));}
+function xmlEscape(s){return String(s??"").replace(/[<>&'"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;","'":"&apos;",'"':"&quot;"}[c]));}
 function wText(s,bold=false){
   const rPr=bold?"<w:rPr><w:b/></w:rPr>":"";
   return `<w:p><w:r>${rPr}<w:t xml:space="preserve">${xmlEscape(s)}</w:t></w:r></w:p>`;
@@ -1511,7 +1522,7 @@ async function exportExcel(){
   }
   function cellXml(value,row,col,style=0){
     const ref=colName(col)+row;
-    const val=xmlEscape(value==null?"":value);
+    const val=xmlEscape(value??"");
     return `<c r="${ref}" t="inlineStr"${style?` s="${style}"`:""}><is><t xml:space="preserve">${val}</t></is></c>`;
   }
 
@@ -1726,7 +1737,7 @@ function runCoreSelfTest(){
 window.__libraryManagerSelfTest=runCoreSelfTest;
 
 /* ===================== Stable settings ===================== */
-const DEFAULT_SETTINGS={defaultPanel:"register",defaultSort:"newest",defaultMedia:"book",showDetails:false};
+const DEFAULT_SETTINGS={defaultPanel:"register",defaultSort:"newest",defaultMedia:"book",keepListOpen:true,showDetails:false};
 function loadAppSettings(){
   try{
     const raw=JSON.parse(SafeStorage.get("homeLibrarySettings","{}")||"{}");
@@ -1741,6 +1752,7 @@ function syncSettingsUI(){
   if($("defaultPanelSetting"))$("defaultPanelSetting").value=appSettings.defaultPanel;
   if($("defaultSortSetting"))$("defaultSortSetting").value=appSettings.defaultSort;
   if($("defaultMediaSetting"))$("defaultMediaSetting").value=appSettings.defaultMedia;
+  if($("keepListOpenSetting"))$("keepListOpenSetting").checked=!!appSettings.keepListOpen;
   if($("showDetailsSetting"))$("showDetailsSetting").checked=!!appSettings.showDetails;
 }
 function applyAppSettings(){
@@ -1766,6 +1778,7 @@ function bindSettings(){
   bind("defaultPanelSetting","defaultPanel",el=>el.value);
   bind("defaultSortSetting","defaultSort",el=>el.value);
   bind("defaultMediaSetting","defaultMedia",el=>el.value);
+  bind("keepListOpenSetting","keepListOpen",el=>el.checked);
   bind("showDetailsSetting","showDetails",el=>el.checked);
   const reset=$("resetSettingsBtn");
   if(reset)reset.onclick=()=>{
@@ -1799,7 +1812,7 @@ function openMainPanel(name){
     btn.classList.toggle("active",active);
     btn.setAttribute("aria-current",active?"page":"false");
   });
-  window.scrollTo(0,0);
+  try{window.scrollTo({top:0,left:0,behavior:'auto'})}catch(e){window.scrollTo(0,0)}
 }
 document.addEventListener("click",function(e){
   const btn=e.target.closest && e.target.closest("#bottomNav [data-panel]");
