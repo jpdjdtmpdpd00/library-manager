@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>蔵書・AV資料管理 — GitHub Pages版 v6.6</title>
+<title>蔵書・AV資料管理 — 蔵書・AV資料管理 v6.6.11</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--ok:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
@@ -73,7 +73,7 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 </style>
 
 <style id="v64-ui">
-body{padding-bottom:78px}.appPanelHidden{display:none!important}
+body{padding-bottom:78px}
 .quickTypes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:7px 0 10px}.quickType{background:#fff;color:#111827;border:1px solid var(--line);padding:10px 5px;font-size:12px}.quickType.active{background:#111827;color:#fff}.quickType .ico{display:block;font-size:21px}
 .advancedOptional.collapsed{display:none}.advancedToggle button{width:100%;margin-top:10px;background:#fff;color:#374151;border:1px solid var(--line)}
 .bottomNav{position:fixed;z-index:25;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
@@ -86,7 +86,7 @@ body{padding-bottom:78px}.appPanelHidden{display:none!important}
 </style>
 
 <style id="v642-sizing">
-/* スマホ基準で、窮屈すぎず大きすぎない寸法へ再調整 */
+
 :root{--tap:44px}
 body{font-size:14px}
 .wrap{max-width:920px}
@@ -160,7 +160,7 @@ button{min-height:42px;padding:9px 12px;border-radius:9px;font-size:13px}
 .tagChip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 7px;margin:3px 3px 0 0;font-size:10px;border:1px solid rgba(0,0,0,.08);color:#1f2937}
 .tagColorRows{display:flex;flex-wrap:wrap;gap:7px}.tagColorRow{display:flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:5px 8px;font-size:11px}.tagColorRow input{width:28px;height:28px;min-height:28px;padding:0;border:0}
 </style><style id="v66-refine">
-/* v6.6: 情報の優先順位と操作性を再整理 */
+/* v6.6 正式版 UI */
 header .small{opacity:.78}
 #registerPanel>.notice{margin-bottom:10px}
 .quickTypes{margin-top:4px}
@@ -194,9 +194,43 @@ header .small{opacity:.78}
  .sortRow{justify-content:space-between}
  .sortRow select{max-width:180px}
 }
+</style><style id="v662-media-fix">
+.mediaTypeGrid{grid-template-columns:repeat(5,minmax(0,1fr));max-width:none!important}
+.mediaTypeFallback{margin-top:7px}
+@media(max-width:520px){.mediaTypeGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.quickType{min-height:48px}.quickType .ico{display:inline;margin-right:4px;font-size:16px}}
+</style><style id="v663-interaction">
+button:disabled{opacity:.55;cursor:not-allowed}
+button:active{transform:translateY(1px)}
+.quickType{touch-action:manipulation}
+.quickType.active{box-shadow:0 0 0 2px rgba(17,24,39,.12)}
+#formStatus.status,#scanStatus.status{min-height:0}
+@media(max-width:520px){
+ .mediaTypeGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mediaTypeFallback{min-height:44px}
+}
+</style><style id="v665-settings">
+#settingsPanel>.card{margin-bottom:10px}
+.settingCheck{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:13px}
+.settingCheck input[type="checkbox"]{width:20px;height:20px;min-height:20px;flex:0 0 auto}
+#settingsBackupHost .backupBox{margin-top:9px;padding:0;border:0;background:transparent}
+#settingsBackupHost .backupBox>.sectionTitle{display:none}
+#settingsBackupHost .toolbar{margin-top:0}
+@media(max-width:520px){#settingsBackupHost .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:7px}#settingsBackupHost .toolbar button{width:100%}}
+</style><style id="v666-three-sections">
+.panelIntro{display:flex;align-items:baseline;gap:9px;margin:2px 0 12px;padding:0 2px}
+.panelIntro strong{font-size:20px;letter-spacing:.01em}
+.panelIntro span{font-size:12px;color:var(--muted)}
+#settingsPanel>.card{padding:14px}
+#settingsPanel>.card>.sectionTitle{margin-top:0}
+</style><style id="v669-panel-separation">
+.appPanel{width:100%;box-sizing:border-box}
+.settingGroup{border-top:1px solid var(--line);padding:13px 0;margin-top:5px}
+.settingGroup:first-of-type{border-top:0;padding-top:0}
+#settingsPanel>.panelIntro,#libraryPanel>.panelIntro,#registerPanel>.panelIntro{margin-bottom:12px}
+#settingsPanel .backupBox{margin:8px 0 0;padding:0;border:0;background:transparent}
 </style></head>
 <body>
-<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">GitHub Pages版 v6.6・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
+<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">蔵書・AV資料管理 v6.6・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
 
 <div id="firstUseHelp" class="wrap" style="padding-top:10px">
   <div class="card">
@@ -207,23 +241,20 @@ header .small{opacity:.78}
       機種変更やデータ移行には「バックアップを保存」を使ってください。
     </div>
     <div class="row" style="margin-top:10px">
-      <button id="hideHelpBtn" class="secondary">この説明を閉じる</button>
+      <button type="button" id="hideHelpBtn" class="secondary">この説明を閉じる</button>
     </div>
   </div>
 </div>
 
 
 <main class="wrap grid">
-<section class="card" id="registerPanel">
-  <div class="notice">
-    <b>GitHub Pages版 v6.6</b><br>
-    Chromeで開いて使うことを想定しています。このHTMLファイル単体でバーコード画像を解析します。
-    「バーコードを撮影」または「画像から読み取る」で、書籍のISBNやDVD・Blu-ray・CDなどのJAN/EAN-13バーコードを読み取れます。
-  </div>
+<section class="card appPanel" id="registerPanel" data-role="register">
+  <div class="panelIntro"><strong>登録</strong><span>資料の追加・編集</span></div>
+  <div class="notice small">バーコードを読み取るか、資料種別を選んで情報を入力してください。</div>
 
   <div class="row">
-    <button id="cameraBtn">📷 バーコードを撮影</button>
-    <button id="galleryBtn" class="secondary">🖼 画像から読み取る</button>
+    <button type="button" id="cameraBtn">📷 バーコードを撮影</button>
+    <button type="button" id="galleryBtn" class="secondary">🖼 画像から読み取る</button>
   </div>
   <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
   <input id="galleryInput" type="file" accept="image/*" hidden>
@@ -241,38 +272,39 @@ header .small{opacity:.78}
 
   <div class="sectionTitle">基本情報 <span class="hint">資料種別で入力欄が切り替わります</span></div>
   <label>資料種別</label>
-  <div class="quickTypes" id="quickTypes">
+  <div class="quickTypes mediaTypeGrid" id="quickTypes" role="group" aria-label="資料種別">
     <button type="button" class="quickType active" data-type="book"><span class="ico">📕</span>書籍</button>
     <button type="button" class="quickType" data-type="dvd"><span class="ico">📀</span>DVD</button>
     <button type="button" class="quickType" data-type="bluray"><span class="ico">💿</span>Blu-ray</button>
     <button type="button" class="quickType" data-type="cd"><span class="ico">🎵</span>CD</button>
+    <button type="button" class="quickType" data-type="vhs"><span class="ico">📼</span>VHS</button>
+    <button type="button" class="quickType" data-type="video"><span class="ico">🎬</span>映像ファイル</button>
+    <button type="button" class="quickType" data-type="vinyl"><span class="ico">💿</span>レコード</button>
+    <button type="button" class="quickType" data-type="cassette"><span class="ico">📼</span>カセット</button>
+    <button type="button" class="quickType" data-type="audio"><span class="ico">🔊</span>音声ファイル</button>
+    <button type="button" class="quickType" data-type="other"><span class="ico">📦</span>その他</button>
   </div>
-  <select id="mediaType">
-    <option value="book">書籍</option>
-    <option value="dvd">DVD</option>
-    <option value="bluray">Blu-ray</option>
-    <option value="vhs">VHS</option>
-    <option value="video">映像ファイル</option>
-    <option value="cd">CD</option>
-    <option value="vinyl">レコード</option>
-    <option value="cassette">カセットテープ</option>
-    <option value="audio">音声ファイル</option>
-    <option value="other">その他</option>
+  <div class="small muted" style="margin-top:6px">一覧から選ぶこともできます。</div>
+  <select id="mediaType" aria-label="資料種別" class="mediaTypeFallback">
+    <option value="book">書籍</option><option value="dvd">DVD</option><option value="bluray">Blu-ray</option>
+    <option value="vhs">VHS</option><option value="video">映像ファイル</option><option value="cd">CD</option>
+    <option value="vinyl">レコード</option><option value="cassette">カセットテープ</option>
+    <option value="audio">音声ファイル</option><option value="other">その他</option>
   </select>
 
   <div id="bookFields">
     <label>バーコード番号（ISBN-13）</label>
     <div class="row">
       <input id="isbn" inputmode="numeric" maxlength="13" placeholder="例：9784000000000" autocomplete="off">
-      <button id="lookupBtn">書誌取得</button>
+      <button type="button" id="lookupBtn">書誌取得</button>
     </div>
     <div class="small muted" style="margin-top:6px">画像で読めない場合は、バーコード下の13桁を直接入力できます。</div>
     <div class="small muted" style="margin-top:4px">書誌情報は openBD → Google Books の順に自動検索します。</div>
 
-    <label>書名</label><input id="title">
-    <label>著者</label><input id="authors">
+    <label>書名</label><input id="title" autocomplete="off">
+    <label>著者</label><input id="authors" autocomplete="off">
     <div class="row">
-      <div><label>出版社</label><input id="publisher"></div>
+      <div><label>出版社</label><input id="publisher" autocomplete="organization"></div>
       <div><label>発行年</label><input id="year" inputmode="numeric"></div>
     </div>
     <label>自動ジャンル</label><select id="genre"></select>
@@ -344,10 +376,10 @@ header .small{opacity:.78}
   <div class="formSection"><div class="sectionTitle">管理情報</div>
   <label>進捗状態</label>
   <select id="progressStatus"></select>
-  <div class="row"><div><label>本棚</label><input id="shelf" list="shelfHistory" placeholder="例：書斎A"></div><div><label>段</label><input id="level" placeholder="例：3"></div></div>
+  <div class="row"><div><label>本棚</label><input id="shelf" list="shelfHistory" placeholder="例：書斎A" autocomplete="off"></div><div><label>段</label><input id="level" placeholder="例：3" autocomplete="off"></div></div>
   <datalist id="shelfHistory"></datalist><div id="shelfSuggestions" class="shelfSuggestions"></div>
   <div class="advancedToggle"><button type="button" id="advancedToggleBtn">タグ・備考を表示 ▼</button></div>
-  <div id="advancedOptional" class="advancedOptional collapsed"><label>タグ</label><input id="tags" placeholder="例：卒論資料, お気に入り">
+  <div id="advancedOptional" class="advancedOptional collapsed"><label>タグ</label><input id="tags" placeholder="例：卒論資料, お気に入り" autocomplete="off">
     <div id="tagQuickPick" class="tagFilters" style="margin-top:6px"></div><label>備考</label><textarea id="notes"></textarea></div>
 
   </div>
@@ -355,15 +387,16 @@ header .small{opacity:.78}
     <b>編集中</b><br>このフォームは既存資料の編集モードです。「変更を保存」で上書きします。
   </div>
   <div class="stickyActions"><div class="row">
-    <button id="addBtn">登録する</button>
-    <button id="cancelEditBtn" class="secondary" style="display:none">編集取消</button>
-    <button id="clearBtn" class="secondary">入力を消去</button>
+    <button type="button" id="addBtn">登録する</button>
+    <button type="button" id="cancelEditBtn" class="secondary" style="display:none">編集取消</button>
+    <button type="button" id="clearBtn" class="secondary">入力を消去</button>
   </div></div>
   <div id="formStatus" class="status"></div>
 </section>
 
-<section class="card" id="libraryPanel">
-  <div class="sectionTitle">所蔵一覧 <span class="hint">検索・絞り込み</span></div>
+<section class="card appPanel" id="libraryPanel" data-role="library" style="display:none!important">
+  <div class="panelIntro"><strong>一覧</strong><span>検索・閲覧・所蔵資料の管理</span></div>
+  <div class="sectionTitle">検索・絞り込み <span class="hint">登録済み資料から探す</span></div>
   <div class="filterGrid">
     <input id="search" placeholder="タイトル・著者・ISBN・タグなどを検索">
     <select id="typeFilter">
@@ -377,7 +410,7 @@ header .small{opacity:.78}
     <select id="locationFilter"><option value="">すべての場所</option></select>
   </div>
   <div class="tagFilterBox"><div class="tagFilterHead"><strong>タグで絞り込む</strong><span class="small muted" id="tagFilterCount"></span></div><div class="tagFilters" id="tagFilters"></div></div>
-  <div class="sortRow"><label for="sortOrder">並び順</label><select id="sortOrder"><option value="newest">登録が新しい順</option><option value="title">タイトル順</option><option value="yearDesc">年が新しい順</option><option value="shelf">本棚順</option></select></div>
+  <div class="sortRow"><label for="sortOrder">並び順</label><select id="sortOrder"><option value="newest">新しい順</option><option value="title">タイトル順</option><option value="yearDesc">発行年・発売年順</option><option value="shelf">本棚・場所順</option></select></div>
   <div class="kpiGrid">
     <div class="kpi"><div class="num" id="count">0</div><div class="label">登録資料</div></div>
     <div class="kpi"><div class="num" id="doneCount">0</div><div class="label">完了</div></div>
@@ -386,7 +419,7 @@ header .small{opacity:.78}
   </div>
   <div class="collapseBar">
     <div class="summary" id="listSummary">0点表示</div>
-    <button id="collapseBtn" class="secondary">一覧を隠す</button>
+    <button type="button" id="collapseBtn" class="secondary">一覧を隠す</button>
   </div>
   <div id="listArea">
     <div id="listCards"></div>
@@ -398,26 +431,90 @@ header .small{opacity:.78}
     </div>
   </div>
 
+
+</section>
+<section class="card appPanel" id="settingsPanel" data-role="settings" style="display:none!important">
+  <div class="panelIntro"><strong>設定</strong><span>アプリの動作・表示・データ管理</span></div>
+  <div class="settingGroup" id="deviceStatusGroup">
+    <div class="sectionTitle">端末・動作確認</div>
+    <div id="deviceStatus" class="small muted">確認中…</div>
+  </div>
+  <div class="settingGroup">
+    <div class="sectionTitle">画面・一覧</div>
+    <label for="defaultPanelSetting">起動時に開く画面</label>
+    <select id="defaultPanelSetting">
+      <option value="register">登録</option>
+      <option value="library">一覧</option>
+      <option value="settings">設定</option>
+    </select>
+    <label for="defaultSortSetting">一覧の並び順</label>
+    <select id="defaultSortSetting">
+      <option value="newest">新しい順</option>
+      <option value="title">タイトル順</option>
+      <option value="yearDesc">発行年・発売年順</option>
+      <option value="shelf">本棚・場所順</option>
+    </select>
+    <label class="settingCheck"><input id="keepListOpenSetting" type="checkbox"> 一覧を最初から表示する</label>
+  </div>
+
+  <div class="settingGroup">
+    <div class="sectionTitle">登録</div>
+    <label for="defaultMediaSetting">初期の資料種別</label>
+    <select id="defaultMediaSetting">
+      <option value="book">書籍</option><option value="dvd">DVD</option><option value="bluray">Blu-ray</option>
+      <option value="cd">CD</option><option value="vhs">VHS</option><option value="video">映像ファイル</option>
+      <option value="vinyl">レコード</option><option value="cassette">カセットテープ</option>
+      <option value="audio">音声ファイル</option><option value="other">その他</option>
+    </select>
+    <label class="settingCheck"><input id="showDetailsSetting" type="checkbox"> 登録時にタグ・備考を表示する</label>
+  </div>
+
+  <div class="settingGroup">
+    <div class="sectionTitle">タグの色</div>
+    <div class="small muted" style="margin-bottom:8px">使用中のタグごとに色を変更できます。</div>
+    <div id="tagColorRows" class="tagColorRows"></div>
+  </div>
+
+  <div class="settingGroup" id="settingsBackupHost">
+    <div class="sectionTitle">バックアップ・データ管理</div>
+    <div class="small muted">バックアップ、復元、Excel・CSVの書き出しをここから行えます。</div>
 <div class="backupBox">
     <div class="sectionTitle">保存・バックアップ <span class="hint">Excel・CSVは一覧用、JSONは復元用</span></div>
     <div class="toolbar">
-      <button id="excelBtn" class="secondary">Excelを書き出す</button>
-      <button id="exportBtn" class="secondary">CSVを書き出す</button>
-      <button id="backupBtn" class="secondary">バックアップを保存</button>
-      <button id="restoreBtn" class="secondary">バックアップから復元</button>
-      <button id="importBtn" class="secondary">CSVを読み込む</button>
+      <button type="button" id="excelBtn" class="secondary">Excelを書き出す</button>
+      <button type="button" id="exportBtn" class="secondary">CSVを書き出す</button>
+      <button type="button" id="backupBtn" class="secondary">バックアップを保存</button>
+      <button type="button" id="restoreBtn" class="secondary">バックアップから復元</button>
+      <button type="button" id="importBtn" class="secondary">CSVを読み込む</button>
       <input id="fileInput" type="file" accept=".csv,text/csv" hidden>
       <input id="restoreInput" type="file" accept=".json,application/json" hidden>
     </div>
   </div>
+  </div>
+
+  <div class="settingGroup">
+    <div class="sectionTitle">設定のリセット</div>
+    <div class="small muted" style="margin-bottom:8px">登録済み資料は削除せず、表示・登録設定だけを初期状態に戻します。</div>
+    <button type="button" id="resetSettingsBtn" class="secondary">設定を初期状態に戻す</button>
+  </div>
 </section>
-<section id="settingsPanel" class="appPanelHidden"></section>
 </main>
-<nav class="bottomNav" id="bottomNav" aria-label="メインメニュー"><button type="button" data-panel="register" class="active"><span class="navIcon">＋</span>登録</button><button type="button" data-panel="library"><span class="navIcon">📚</span>一覧</button><button type="button" data-panel="settings"><span class="navIcon">⚙️</span>設定</button></nav>
+<nav class="bottomNav" id="bottomNav" aria-label="メインメニュー"><button type="button" data-panel="register" aria-label="登録画面" class="active"><span class="navIcon">＋</span>登録</button><button type="button" data-panel="library" aria-label="一覧画面"><span class="navIcon">📚</span>一覧</button><button type="button" data-panel="settings" aria-label="設定画面"><span class="navIcon">⚙️</span>設定</button></nav>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<div id="modal" class="modal"><div class="sheet"><div class="row"><strong id="mTitle">詳細</strong><button id="closeModal" class="secondary">閉じる</button></div><div id="mBody" style="margin-top:10px"></div></div></div>
+<div id="modal" class="modal"><div class="sheet"><div class="row"><strong id="mTitle">詳細</strong><button type="button" id="closeModal" class="secondary">閉じる</button></div><div id="mBody" style="margin-top:10px"></div></div></div>
 
 <script>
+
+/* Android / file:// safe storage */
+const SafeStorage={
+  get(key,fallback=null){try{const v=window.localStorage.getItem(key);return v===null?fallback:v}catch(e){return fallback}},
+  set(key,value){try{window.localStorage.setItem(key,value);return true}catch(e){return false}},
+  remove(key){try{window.localStorage.removeItem(key);return true}catch(e){return false}}
+};
+function makeId(){
+  try{if(window.crypto&&typeof window.crypto.randomUUID==="function")return window.crypto.randomUUID()}catch(e){}
+  return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2)+"-"+Math.random().toString(36).slice(2);
+}
 /* ===================== 基本データ ===================== */
 const GENRES=["未分類","歴史","日本史","東洋史","西洋史","考古学","文化財","保存修復","紙文化財","美術史","漆工・工芸","博物館学","化学・材料","建築","宗教","民俗学","文学","小説","語学","哲学・思想","社会科学","自然科学","写真","コンピュータ","その他"];
 const KEYWORDS=[
@@ -448,7 +545,8 @@ const $=id=>document.getElementById(id);
 GENRES.forEach(g=>$("genre").insertAdjacentHTML("beforeend",`<option>${g}</option>`));
 let books=[];
 try{
-  const saved=JSON.parse(localStorage.getItem("homeLibraryBooks")||"[]");
+  let saved=[];
+try{saved=JSON.parse(SafeStorage.get("homeLibraryBooks","[]")||"[]");if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}
   books=Array.isArray(saved)?saved:[];
 }catch(e){
   books=[];
@@ -825,9 +923,9 @@ async function lookupISBN(){
 /* ===================== 蔵書管理 ===================== */
 function save(){
   try{
-    localStorage.setItem("homeLibraryBooks",JSON.stringify(books));
+    SafeStorage.set("homeLibraryBooks",JSON.stringify(books));
   }catch(e){
-    alert("端末への保存に失敗しました。CSVまたはバックアップを保存を保存してください。");
+    alert("端末への保存に失敗しました。CSVまたはバックアップを保存してください。");
   }
   render();
 }
@@ -902,7 +1000,7 @@ function addBook(){
     const idx=books.findIndex(x=>x.id===editingId);
     if(idx>=0){const old=books[idx]; books[idx]={id:old.id,addedAt:old.addedAt||new Date().toISOString(),...record,updatedAt:new Date().toISOString()};save();clearForm();setForm("変更を保存しました。","ok");showToast("変更を保存しました");return}
   }
-  books.unshift({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),...record,addedAt:new Date().toISOString()});
+  books.unshift({id:makeId(),...record,addedAt:new Date().toISOString()});
   save();clearForm();setForm("登録しました。","ok");showToast("資料を登録しました");
 }
 function mediaTypeLabel(t){
@@ -987,9 +1085,9 @@ function render(){
         </div>
       </div>
       <div class="itemActions">
-        <button class="ghost" data-action="detail" data-id="${esc(b.id)}">見る</button>
-        <button class="ghost" data-action="edit" data-id="${esc(b.id)}">編集</button>
-        <button class="danger" data-action="delete" data-id="${esc(b.id)}">削除</button>
+        <button type="button" class="ghost" data-action="detail" data-id="${esc(b.id)}">見る</button>
+        <button type="button" class="ghost" data-action="edit" data-id="${esc(b.id)}">編集</button>
+        <button type="button" class="danger" data-action="delete" data-id="${esc(b.id)}">削除</button>
       </div>
     </div>`;
   }).join(""):`<div class="empty">条件に一致する資料はありません。</div>`;
@@ -1001,7 +1099,7 @@ function render(){
       <td><div class="small muted">${esc(mediaTypeLabel(b.mediaType))}</div><div class="title">${esc(b.title||"(タイトル未登録)")}</div><div class="muted">${esc(creatorText(b))}</div><div class="small muted">${esc(codeText(b))}</div></td>
       <td><span class="badge">${esc(b.genre||"未分類")}</span><span class="badge ${statusClass(ps)}">${esc(ps)}</span></td>
       <td>${esc([b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / ")||"未配置")}</td>
-      <td><div style="display:flex;gap:5px;flex-wrap:wrap"><button class="ghost" onclick="showBook('${b.id}')">見る</button><button class="ghost" onclick="editRecord('${b.id}')">編集</button><button class="danger" onclick="deleteBook('${b.id}')">削除</button></div></td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap"><button type="button" class="ghost" onclick="showBook('${b.id}')">見る</button><button type="button" class="ghost" onclick="editRecord('${b.id}')">編集</button><button type="button" class="danger" onclick="deleteBook('${b.id}')">削除</button></div></td>
     </tr>`;
   }).join(""):`<tr><td colspan="5" class="empty">条件に一致する資料はありません。</td></tr>`;
 }
@@ -1023,8 +1121,8 @@ window.showBook=id=>{
   <div><b>場所:</b> ${esc([b.shelf,b.level?b.level+"段":""].filter(Boolean).join(" / ")||"未配置")}</div>
   <div><b>備考:</b> ${esc(b.notes||"")||"—"}</div><div class="compactSummary"><b>登録:</b> ${esc((b.addedAt||"").slice(0,10))||"—"}${b.updatedAt?` ／ <b>更新:</b> ${esc((b.updatedAt||"").slice(0,10))}`:""}</div><hr>
   <div class="row">
-    <button onclick="editRecord('${b.id}')">編集</button>
-    <button class="danger" onclick="deleteBook('${b.id}')">削除</button>
+    <button type="button" onclick="editRecord('${b.id}')">編集</button>
+    <button type="button" class="danger" onclick="deleteBook('${b.id}')">削除</button>
   </div>`;
   $("modal").classList.add("show");
 };
@@ -1101,7 +1199,7 @@ window.deleteBook=id=>{
 };
 
 /* ===================== CSV ===================== */
-function csvEscape(v){const s=Array.isArray(v)?v.join("|"):String(v??"");return `"${s.replaceAll('"','""')}"`}
+function csvEscape(v){const s=Array.isArray(v)?v.join("|"):String(v??"");return `"${s.replace(/\"/g,'\"\"')}"`}
 function exportCSV(){
   const cols=["mediaType","isbn","mediaCode","title","authors","director","artist","creator","publisher","studio","labelName","year","runtime","discCount","catalogNo","genre","progressStatus","tags","shelf","level","notes","addedAt","updatedAt"];
   const csv=["\ufeff"+cols.join(","),...books.map(b=>cols.map(c=>csvEscape(b[c])).join(","))].join("\n");
@@ -1122,7 +1220,7 @@ async function importCSV(file){
   const incoming=rows.slice(1).map(r=>{
     const o={};
     headers.forEach((h,i)=>o[h]=r[i]??"");
-    o.id=crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());
+    o.id=makeId();
     o.tags=(o.tags||"").split("|").filter(Boolean);
     o.cover=o.cover||"";
     o.description=o.description||"";
@@ -1165,11 +1263,10 @@ function updateMediaFields(){
     setScan(`${mediaTypeLabel(t)}：カメラまたは写真からバーコードを読み取ると、${scanTarget}へ自動入力します${auto}`);
   }
 }
-$("mediaType").addEventListener("change",()=>{updateMediaFields();updateProgressOptions();});
 updateMediaFields();updateProgressOptions();
 
 
-/* ===================== Excel / バックアップを保存 ===================== */
+/* ===================== Excel / CSV / バックアップ ===================== */
 function downloadBlob(blob,filename){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1200);
@@ -1322,7 +1419,7 @@ async function exportExcel(){
 function exportBackup(){
   const payload={format:"home-library-backup",version:4.1,exportedAt:new Date().toISOString(),records:books};
   downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"}),
-    `所蔵資料_バックアップを保存_${new Date().toISOString().slice(0,10)}.json`);
+    `所蔵資料_バックアップ_${new Date().toISOString().slice(0,10)}.json`);
 }
 async function restoreBackup(file){
   try{
@@ -1333,7 +1430,7 @@ async function restoreBackup(file){
 
     books=records.map((r,i)=>({
       ...r,
-      id:r.id||(crypto.randomUUID?crypto.randomUUID():String(Date.now()+i+Math.random())),
+      id:r.id||(makeId()),
       mediaType:r.mediaType||"book",
       progressStatus:r.progressStatus||defaultProgressForType(r.mediaType||"book"),
       tags:Array.isArray(r.tags)?r.tags:(typeof r.tags==="string"?r.tags.split("|").filter(Boolean):[])
@@ -1348,14 +1445,14 @@ async function restoreBackup(file){
 }
 
 
-let listCollapsed=localStorage.getItem("homeLibraryListCollapsed")==="1";
+let listCollapsed=SafeStorage.get("homeLibraryListCollapsed")==="1";
 function applyListCollapse(){
   $("listArea").classList.toggle("collapsed",listCollapsed);
   $("collapseBtn").textContent=listCollapsed?"一覧を表示":"一覧を隠す";
 }
 $("collapseBtn").onclick=()=>{
   listCollapsed=!listCollapsed;
-  try{localStorage.setItem("homeLibraryListCollapsed",listCollapsed?"1":"0")}catch(e){}
+  try{SafeStorage.set("homeLibraryListCollapsed",listCollapsed?"1":"0")}catch(e){}
   applyListCollapse();
 };
 $("listCards").addEventListener("click",e=>{
@@ -1380,13 +1477,13 @@ $("listCards").addEventListener("keydown",e=>{
 applyListCollapse();
 
 
-let helpHidden=localStorage.getItem("homeLibraryHelpHidden")==="1";
+let helpHidden=SafeStorage.get("homeLibraryHelpHidden")==="1";
 function applyHelpState(){
   if($("firstUseHelp"))$("firstUseHelp").style.display=helpHidden?"none":"block";
 }
 $("hideHelpBtn").onclick=()=>{
   helpHidden=true;
-  try{localStorage.setItem("homeLibraryHelpHidden","1")}catch(e){}
+  try{SafeStorage.set("homeLibraryHelpHidden","1")}catch(e){}
   applyHelpState();
 };
 applyHelpState();
@@ -1405,6 +1502,48 @@ $("audioLookupBtn").onclick=async()=>{
 
 
 /* ===================== Events ===================== */
+
+/* メインナビゲーション：補助UIとは独立して動作 */
+function openMainPanel(name){
+  const ids={register:"registerPanel",library:"libraryPanel",settings:"settingsPanel"};
+  if(!ids[name])return;
+  Object.entries(ids).forEach(([key,id])=>{
+    const panel=document.getElementById(id);
+    if(panel)panel.style.setProperty("display",key===name?"block":"none","important");
+  });
+  document.querySelectorAll("#bottomNav [data-panel]").forEach(btn=>{
+    const active=btn.dataset.panel===name;
+    btn.classList.toggle("active",active);
+    btn.setAttribute("aria-current",active?"page":"false");
+  });
+  window.scrollTo(0,0);
+}
+document.addEventListener("click",function(e){
+  const btn=e.target.closest && e.target.closest("#bottomNav [data-panel]");
+  if(!btn)return;
+  e.preventDefault();
+  openMainPanel(btn.dataset.panel);
+});
+
+
+/* 資料種別選択：追加UIから独立して必ず動作させる */
+function selectMediaType(type){
+  const sel=$("mediaType");
+  if(!sel)return;
+  sel.value=type;
+  updateMediaFields();
+  updateProgressOptions();
+  document.querySelectorAll("#quickTypes [data-type]").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.type===type);
+    btn.setAttribute("aria-pressed",btn.dataset.type===type?"true":"false");
+  });
+}
+document.addEventListener("click",function(e){
+  const btn=e.target.closest && e.target.closest("#quickTypes [data-type]");
+  if(btn){e.preventDefault();selectMediaType(btn.dataset.type);}
+});
+$("mediaType").addEventListener("change",function(){selectMediaType(this.value);});
+
 $("cameraBtn").onclick=()=>$("cameraInput").click();
 $("galleryBtn").onclick=()=>$("galleryInput").click();
 $("cameraInput").onchange=e=>{if(e.target.files[0])decodeImageFile(e.target.files[0]);e.target.value=""};
@@ -1421,19 +1560,21 @@ render();
 
 /* v6.4 UI */
 function showToast(m){const e=$("toast");if(!e)return;e.textContent=m;e.classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>e.classList.remove("show"),2200)}
-function switchPanel(n){$("registerPanel").classList.toggle("appPanelHidden",n!=="register");$("libraryPanel").classList.toggle("appPanelHidden",n!=="library");$("settingsPanel").classList.toggle("appPanelHidden",n!=="settings");document.querySelectorAll("#bottomNav button").forEach(b=>b.classList.toggle("active",b.dataset.panel===n));try{localStorage.setItem("homeLibraryActivePanel",n)}catch(e){}window.scrollTo({top:0,behavior:"smooth"})}
+function switchPanel(n){openMainPanel(n)}
 function syncQuickTypes(){const t=$("mediaType").value;document.querySelectorAll(".quickType").forEach(b=>b.classList.toggle("active",b.dataset.type===t))}
 function refreshShelfSuggestions(){const a=[...new Set(books.map(b=>String(b.shelf||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));$("shelfHistory").innerHTML=a.map(s=>`<option value="${esc(s)}"></option>`).join("");$("shelfSuggestions").innerHTML=a.slice(0,8).map(s=>`<button type="button" data-shelf="${esc(s)}">${esc(s)}</button>`).join("")}
-document.querySelectorAll("#bottomNav button").forEach(b=>b.onclick=()=>switchPanel(b.dataset.panel));
-document.querySelectorAll(".quickType").forEach(b=>b.onclick=()=>{$("mediaType").value=b.dataset.type;updateMediaFields();updateProgressOptions();syncQuickTypes()});
-$("mediaType").addEventListener("change",syncQuickTypes);
+
+
 $("advancedToggleBtn").onclick=()=>{const b=$("advancedOptional"),o=b.classList.toggle("collapsed")===false;$("advancedToggleBtn").textContent=o?"タグ・備考を隠す ▲":"タグ・備考を表示 ▼"};
 $("shelfSuggestions").onclick=e=>{const b=e.target.closest("[data-shelf]");if(b)$("shelf").value=b.dataset.shelf};
 $("sortOrder").onchange=render;
-const bak=document.querySelector(".backupBox");if(bak)$("settingsPanel").appendChild(bak);
-if($("settingsPanel")){const s=document.createElement("div");s.className="card";s.innerHTML='<div class="sectionTitle">タグの色分け <span class="hint">色は自由に変更できます</span></div><div id="tagColorRows" class="tagColorRows"></div>';$("settingsPanel").insertBefore(s,$("settingsPanel").firstChild)}
+
+
 refreshShelfSuggestions();syncQuickTypes();
-const p=localStorage.getItem("homeLibraryActivePanel")||"register";switchPanel(["register","library","settings"].includes(p)?p:"register");
+applyAppSettings();
+updateDeviceStatus();
+const p=appSettings.defaultPanel;
+switchPanel(["register","library","settings"].includes(p)?p:"register");
 
 </script>
 </body>
