@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>蔵書・AV資料管理 — GitHub Pages版 v6.0</title>
+<title>蔵書・AV資料管理 — GitHub Pages版 v6.1</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--ok:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
@@ -74,7 +74,7 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 
 </head>
 <body>
-<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">GitHub Pages版 v6.0・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
+<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">GitHub Pages版 v6.1・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
 
 <div id="firstUseHelp" class="wrap" style="padding-top:10px">
   <div class="card">
@@ -94,9 +94,9 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 <main class="wrap grid">
 <section class="card">
   <div class="notice">
-    <b>GitHub Pages版 v6.0</b><br>
+    <b>GitHub Pages版 v6.1</b><br>
     Chromeで開いて使うことを想定しています。このHTMLファイル単体でバーコード画像を解析します。
-    「カメラで撮影」または「写真から選択」でISBNバーコードを読み取れます。
+    「カメラで撮影」または「写真から選択」で、書籍のISBNやDVD・Blu-ray・CDなどのJAN/EAN-13バーコードを読み取れます。
   </div>
 
   <div class="row">
@@ -106,9 +106,9 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
   <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
   <input id="galleryInput" type="file" accept="image/*" hidden>
   <img id="preview" alt="バーコード画像">
-  <div id="scanStatus" class="status">Chromeで開き、「カメラで撮影」を押してください。バーコードを横向きに大きく写すと読み取りやすくなります。</div>
+  <div id="scanStatus" class="status">「カメラで撮影」を押してください。書籍・DVD・Blu-ray・CDなどのバーコードを横向きに大きく写すと読み取りやすくなります。</div>
   <div class="tip small muted">
-    コツ：バーコード全体を正面から撮影し、影・反射・ピンぼけを避けてください。ISBNのバーコードは通常「978」または「979」で始まります。
+    コツ：バーコード全体を正面から撮影し、影・反射・ピンぼけを避けてください。書籍はISBN（通常978/979）、DVD・CDなどはJAN/EAN-13を読み取ります。
   </div>
 
 
@@ -152,7 +152,8 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 
   <div id="videoFields" style="display:none">
     <label>バーコード番号 / 管理番号</label>
-    <input id="mediaCode" inputmode="numeric" placeholder="JANコード・UPC・任意の管理番号">
+    <input id="mediaCode" inputmode="numeric" placeholder="JAN/EAN-13・UPC・任意の管理番号">
+    <div class="small muted" style="margin-top:6px">上の「カメラで撮影」または「写真から選択」でJAN/EAN-13を自動入力できます。</div>
     <label>作品名</label><input id="mediaTitle" placeholder="映画・映像作品タイトル">
     <label>監督 / 制作者</label><input id="director" placeholder="例：黒澤明">
     <div class="row">
@@ -314,10 +315,13 @@ let editingId=null;
 
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
 function normalizeISBN(s){return (s||"").replace(/[^0-9Xx]/g,"").toUpperCase();}
-function validISBN13(s){
+function validEAN13(s){
   if(!/^\d{13}$/.test(s))return false;
   let sum=0;for(let i=0;i<12;i++)sum+=(+s[i])*(i%2?3:1);
   return (10-(sum%10))%10===+s[12];
+}
+function validISBN13(s){
+  return /^(978|979)\d{10}$/.test(s) && validEAN13(s);
 }
 function setScan(msg,cls=""){$("scanStatus").className="status "+cls;$("scanStatus").textContent=msg}
 function setForm(msg,cls=""){$("formStatus").className="status "+cls;$("formStatus").textContent=msg}
@@ -414,7 +418,7 @@ function decode59(rs){
     right+=R[key];idx+=4;
   }
   const code=first+left+right;
-  return validISBN13(code)?code:null;
+  return validEAN13(code)?code:null;
 }
 
 function decodeRuns(runs){
@@ -422,7 +426,7 @@ function decodeRuns(runs){
   for(let i=0;i+58<runs.length;i++){
     if(!guard3(runs,i))continue;
     const cand=decode59(runs.slice(i,i+59));
-    if(cand && /^(978|979)/.test(cand))return cand;
+    if(cand)return cand;
   }
   return null;
 }
@@ -487,14 +491,24 @@ async function decodeImageFile(file){
     try{
       const code=await decodeBarcodeFromImage(img);
       if(code){
-        $("isbn").value=code;
-        setScan(`ISBN ${code} を読み取りました。`,"ok");
-        await lookupISBN();
+        const t=$("mediaType").value;
+        if(t==="book"){
+          if(!/^(978|979)/.test(code)){
+            setScan(`EAN-13 ${code} を読み取りましたが、書籍ISBNではありません。資料種別をDVD・CD等に変更するか、ISBNを直接入力してください。`,"warn");
+          }else{
+            $("isbn").value=code;
+            setScan(`ISBN ${code} を読み取りました。書誌情報を検索します。`,"ok");
+            await lookupISBN();
+          }
+        }else{
+          $("mediaCode").value=code;
+          setScan(`${mediaTypeLabel(t)} のJAN/EAN-13 ${code} を読み取り、管理番号欄へ入力しました。`,"ok");
+        }
       }else{
-        setScan("バーコードを読み取れませんでした。バーコードをもっと大きく、正面から撮影してください。下の13桁を直接入力しても登録できます。","warn");
+        setScan("バーコードを読み取れませんでした。バーコードをもっと大きく、正面から撮影してください。番号を直接入力して登録することもできます。","warn");
       }
     }catch(e){
-      setScan("画像解析に失敗しました。ISBNの13桁を直接入力してください。","err");
+      setScan("画像解析に失敗しました。バーコード番号を直接入力してください。","err");
     }finally{URL.revokeObjectURL(url)}
   };
   img.onerror=()=>{setScan("画像を開けませんでした。","err");URL.revokeObjectURL(url)};
@@ -890,9 +904,11 @@ function updateMediaFields(){
   $("videoFields").style.display=isVideo?"block":"none";
   $("audioFields").style.display=isAudio?"block":"none";
   $("otherFields").style.display=(!isBook&&!isVideo&&!isAudio)?"block":"none";
-  if($("cameraBtn"))$("cameraBtn").parentElement.style.display=isBook?"flex":"none";
-  if($("scanStatus"))$("scanStatus").style.display=isBook?"block":"none";
-  if($("preview"))$("preview").style.display=isBook&&$("preview").src?"block":"none";
+  if($("cameraBtn"))$("cameraBtn").parentElement.style.display="flex";
+  if($("scanStatus"))$("scanStatus").style.display="block";
+  if($("preview"))$("preview").style.display=$("preview").src?"block":"none";
+  const scanTarget=isBook?"ISBN欄":"バーコード番号 / 管理番号欄";
+  if($("scanStatus") && !$("preview").src)setScan(`${mediaTypeLabel(t)}：カメラまたは写真からバーコードを読み取ると、${scanTarget}へ自動入力します。`);
 }
 $("mediaType").addEventListener("change",()=>{updateMediaFields();updateProgressOptions();});
 updateMediaFields();updateProgressOptions();
