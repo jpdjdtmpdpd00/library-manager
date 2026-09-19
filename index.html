@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>蔵書・AV資料管理 — GitHub Pages版 v6.2</title>
+<title>蔵書・AV資料管理 — GitHub Pages版 v6.3</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#111827;--ok:#166534;--warn:#92400e;--bad:#991b1b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
@@ -74,7 +74,7 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 
 </head>
 <body>
-<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">GitHub Pages版 v6.2・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
+<header><div class="wrap"><h1>📚 蔵書管理</h1><div class="sub">GitHub Pages版 v6.3・書籍/映像/音楽資料・編集・Excel/JSONバックアップ対応</div></div></header>
 
 <div id="firstUseHelp" class="wrap" style="padding-top:10px">
   <div class="card">
@@ -94,7 +94,7 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
 <main class="wrap grid">
 <section class="card">
   <div class="notice">
-    <b>GitHub Pages版 v6.2</b><br>
+    <b>GitHub Pages版 v6.3</b><br>
     Chromeで開いて使うことを想定しています。このHTMLファイル単体でバーコード画像を解析します。
     「カメラで撮影」または「写真から選択」で、書籍のISBNやDVD・Blu-ray・CDなどのJAN/EAN-13バーコードを読み取れます。
   </div>
@@ -265,6 +265,24 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}.modal{display:none;p
     </table>
     </div>
   </div>
+
+<div class="card" id="rakutenSettingsCard">
+  <div class="sectionTitle">DVD / Blu-ray 自動検索設定 <span class="hint">楽天ブックスAPI</span></div>
+  <div class="notice">
+    日本盤DVD / Blu-rayのJAN検索には楽天ブックスAPIを優先して使用します。
+    Application IDとAccess Keyはこの端末のブラウザ内に保存されます。
+  </div>
+  <label>Rakuten Application ID</label>
+  <input id="rakutenAppId" autocomplete="off" placeholder="Application ID">
+  <label>Rakuten Access Key</label>
+  <input id="rakutenAccessKey" autocomplete="off" placeholder="Access Key">
+  <div class="row" style="margin-top:10px">
+    <button id="saveRakutenSettings" class="secondary">設定を保存</button>
+    <button id="clearRakutenSettings" class="secondary">設定を消去</button>
+  </div>
+  <div id="rakutenSettingsStatus" class="small muted" style="margin-top:8px"></div>
+</div>
+
 <div class="backupBox">
     <div class="sectionTitle">保存・バックアップ <span class="hint">Excelは一覧管理用、JSONは復元用</span></div>
     <div class="toolbar">
@@ -587,32 +605,32 @@ async function lookupVideoByBarcode(code){
   code=String(code||"").replace(/\D/g,"");
   if(!code){setScan("DVD / Blu-rayのバーコード番号を入力してください。","warn");return false}
   const t=$("mediaType").value;
-  setScan(`${mediaTypeLabel(t)} ${code} を商品データベースで検索しています…`);
+
+  const rakutenFound=await lookupRakutenDVDByJan(code);
+  if(rakutenFound)return true;
+
+  setScan(`${mediaTypeLabel(t)} ${code} をUPCitemdbで検索しています…`);
   try{
     const r=await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(code)}`,
       {headers:{"Accept":"application/json"}});
     if(!r.ok)throw new Error("UPCitemdb "+r.status);
     const d=await r.json(),item=(d.items||[])[0];
     if(!item){
-      setScan(`${mediaTypeLabel(t)} ${code} は商品データベースで見つかりませんでした。番号は入力済みです。`,"warn");
+      setScan(`${mediaTypeLabel(t)} ${code} は楽天ブックス/UPCitemdbのどちらでも見つかりませんでした。番号は入力済みです。`,"warn");
       return false;
     }
     if(item.title)$("mediaTitle").value=item.title;
     const maker=item.brand||item.manufacturer||"";
-    if(maker)$("studio").value=maker;
-    const cat=item.category||item.category_text||"";
-    if(cat){
-      const options=[...$("videoGenre").options].map(o=>o.value);
-      if(options.includes(cat))$("videoGenre").value=cat;
-    }
+    if(maker && $("studio"))$("studio").value=maker;
     if(item.description && !$("notes").value)$("notes").value=String(item.description).slice(0,1000);
-    setScan(`${mediaTypeLabel(t)}「${item.title||code}」の情報を取得しました。内容を確認して登録してください。`,"ok");
+    setScan(`${mediaTypeLabel(t)}「${item.title||code}」をUPCitemdbから取得しました。内容を確認して登録してください。`,"ok");
     return true;
   }catch(e){
-    setScan(`${mediaTypeLabel(t)}の自動検索に失敗しました。番号は入力済みです。無料APIの利用制限または通信状態の影響を受ける場合があります。`,"warn");
+    setScan(`${mediaTypeLabel(t)}の自動検索に失敗しました。番号は入力済みです。`,"warn");
     return false;
   }
 }
+
 async function lookupMediaByBarcode(code){
   const t=$("mediaType").value;
   if(t==="cd")return lookupCDByBarcode(code);
@@ -1257,6 +1275,91 @@ $("audioLookupBtn").onclick=async()=>{
   await lookupCDByBarcode($("audioCode").value);
 };
 
+
+const RAKUTEN_APP_KEY="libraryManagerRakutenAppId";
+const RAKUTEN_ACCESS_KEY="libraryManagerRakutenAccessKey";
+
+function loadRakutenSettings(){
+  let app="",key="";
+  try{
+    app=localStorage.getItem(RAKUTEN_APP_KEY)||"";
+    key=localStorage.getItem(RAKUTEN_ACCESS_KEY)||"";
+  }catch(e){}
+  if($("rakutenAppId"))$("rakutenAppId").value=app;
+  if($("rakutenAccessKey"))$("rakutenAccessKey").value=key;
+  if($("rakutenSettingsStatus")){
+    $("rakutenSettingsStatus").textContent=(app&&key)
+      ?"楽天ブックスAPI設定済み"
+      :"未設定：DVD / Blu-ray検索はUPCitemdbのみを使用します。";
+  }
+  return {appId:app,accessKey:key};
+}
+
+function saveRakutenSettings(){
+  const app=$("rakutenAppId").value.trim();
+  const key=$("rakutenAccessKey").value.trim();
+  try{
+    localStorage.setItem(RAKUTEN_APP_KEY,app);
+    localStorage.setItem(RAKUTEN_ACCESS_KEY,key);
+    $("rakutenSettingsStatus").textContent=(app&&key)
+      ?"楽天ブックスAPI設定を保存しました。"
+      :"Application IDとAccess Keyの両方を入力してください。";
+  }catch(e){
+    $("rakutenSettingsStatus").textContent="設定を保存できませんでした。";
+  }
+}
+
+function clearRakutenSettings(){
+  try{
+    localStorage.removeItem(RAKUTEN_APP_KEY);
+    localStorage.removeItem(RAKUTEN_ACCESS_KEY);
+  }catch(e){}
+  $("rakutenAppId").value="";
+  $("rakutenAccessKey").value="";
+  $("rakutenSettingsStatus").textContent="楽天ブックスAPI設定を消去しました。";
+}
+
+async function lookupRakutenDVDByJan(code){
+  const cfg=loadRakutenSettings();
+  if(!cfg.appId || !cfg.accessKey)return false;
+  const t=$("mediaType").value;
+  setScan(`${mediaTypeLabel(t)} ${code} を楽天ブックスで検索しています…`);
+  try{
+    const params=new URLSearchParams({
+      applicationId:cfg.appId,
+      accessKey:cfg.accessKey,
+      format:"json",
+      formatVersion:"2",
+      jan:String(code),
+      hits:"5",
+      outOfStockFlag:"1"
+    });
+    const url="https://openapi.rakuten.co.jp/services/api/BooksDVD/Search/20170404?"+params.toString();
+    const r=await fetch(url,{headers:{"Accept":"application/json"}});
+    if(!r.ok)throw new Error("Rakuten "+r.status);
+    const d=await r.json();
+    const arr=d.Items||d.items||[];
+    const item=arr[0]&&arr[0].Item ? arr[0].Item : arr[0];
+    if(!item)return false;
+
+    if(item.title)$("mediaTitle").value=item.title;
+    if(item.artistName && $("director"))$("director").value=item.artistName;
+    if(item.label && $("studio"))$("studio").value=item.label;
+    if(item.salesDate && $("mediaYear")){
+      const m=String(item.salesDate).match(/(19|20)\d{2}/);
+      if(m)$("mediaYear").value=m[0];
+    }
+    if(item.itemCaption && !$("notes").value)$("notes").value=String(item.itemCaption).slice(0,1500);
+
+    setScan(`${mediaTypeLabel(t)}「${item.title||code}」を楽天ブックスから取得しました。内容を確認して登録してください。`,"ok");
+    return true;
+  }catch(e){
+    setScan(`楽天ブックス検索に失敗しました。UPCitemdbへ切り替えます。`,"warn");
+    return false;
+  }
+}
+
+
 /* ===================== Events ===================== */
 $("cameraBtn").onclick=()=>$("cameraInput").click();
 $("galleryBtn").onclick=()=>$("galleryInput").click();
@@ -1268,6 +1371,12 @@ $("fileInput").onchange=e=>{if(e.target.files[0])importCSV(e.target.files[0]);e.
 $("closeModal").onclick=()=>$("modal").classList.remove("show");$("modal").onclick=e=>{if(e.target===$("modal"))$("modal").classList.remove("show")};
 $("isbn").addEventListener("keydown",e=>{if(e.key==="Enter")lookupISBN()});
 render();
+
+
+if($("saveRakutenSettings"))$("saveRakutenSettings").onclick=saveRakutenSettings;
+if($("clearRakutenSettings"))$("clearRakutenSettings").onclick=clearRakutenSettings;
+loadRakutenSettings();
+
 </script>
 </body>
 </html>
